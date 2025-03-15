@@ -1,0 +1,24 @@
+{
+  "name": "@envkit/core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic core functionality for EnvKit",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist",
+    "lint": "eslint \"src/**/*.ts*\""
+  },
+  "dependencies": {
+    "valibot": "^0.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "rimraf": "^5.0.1"
+  }
+}

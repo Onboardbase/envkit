@@ -1,0 +1,27 @@
+{
+  "name": "envkit-demo",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "@envkit/nextjs": "*",
+    "next": "^15.2.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^15.2.2",
+    "typescript": "^5.8.2"
+  }
+}

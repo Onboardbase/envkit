@@ -1,74 +1,71 @@
-# EnvKit 🌍
+# EnvKit
 
-A powerful environment variables management kit for Next.js applications.
+> A powerful, framework-agnostic environment variable management toolkit for modern JavaScript applications.
 
-EnvKit helps you:
-- Validate required environment variables
-- Handle missing variables with a beautiful fallback UI in development
-- Support multiple .env files
-- Provide a seamless developer experience
+[![npm version](https://img.shields.io/npm/v/@envkit/core.svg)](https://www.npmjs.com/package/@envkit/core)
+[![npm version](https://img.shields.io/npm/v/@envkit/nextjs.svg)](https://www.npmjs.com/package/@envkit/nextjs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+EnvKit provides a seamless way to manage environment variables in your applications with built-in validation, UI fallbacks for missing variables, and cross-framework compatibility.
 
 ## Features
 
-✅ **Validate Required Environment Variables**: Define which environment variables are required for your application to function properly.
-
-✅ **Development Fallback UI**: When required variables are missing in development, EnvKit shows a user-friendly UI to add them.
-
-✅ **Environment File Management**: Support for multiple .env files (`.env`, `.env.local`, `.env.development`, etc.) following Next.js conventions.
-
-✅ **Secure by Default**: Prevents the application from starting in production if required variables are missing.
-
-✅ **Fully Typed**: Built with TypeScript for a robust developer experience.
+- **Framework Agnostic**: Core package works with any JavaScript framework
+- **Framework Integrations**: Dedicated packages for Next.js, with more coming soon
+- **Type-Safe**: Built-in TypeScript support and runtime validation
+- **Developer-Friendly**: Customizable fallback UI for missing environment variables
+- **Client-Server Separation**: Clean separation between client and server code
+- **Styled with Tailwind CSS**: Beautiful, customizable UI components
 
 ## Installation
 
+### Core Package
+
 ```bash
-npm install envkit
+npm install @envkit/core
 # or
-yarn add envkit
+yarn add @envkit/core
 # or
-pnpm add envkit
+pnpm add @envkit/core
+```
+
+### Next.js Integration
+
+```bash
+npm install @envkit/nextjs
+# or
+yarn add @envkit/nextjs
+# or
+pnpm add @envkit/nextjs
 ```
 
 ## Quick Start
 
-### 1. Wrap your application with EnvKitProvider
+### Next.js Example
 
-Add EnvKitProvider to your Next.js app's layout:
+1. First, set up your environment variables in your Next.js app's root layout:
 
 ```tsx
-// src/app/layout.tsx
-import { EnvKitProvider } from '@/lib/envkit';
+// app/layout.tsx
+import { EnvKitProvider, DefaultFallbackUI } from '@envkit/nextjs';
+import '@envkit/nextjs/styles.css'; // Import the styles
 
-// Define required environment variables
-const requiredEnvVars = [
-  {
-    name: "API_KEY",
-    required: true,
-    description: "API key for external service"
-  },
-  {
-    name: "DATABASE_URL",
-    required: true,
-    description: "Connection URL for the database"
-  },
-  {
-    name: "LOG_LEVEL",
-    required: false,
-    defaultValue: "info",
-    description: "Log level for the application (optional)"
-  }
-];
+export default function RootLayout({ children }) {
+  // Define required environment variables
+  const requiredVars = [
+    'DATABASE_URL',
+    'API_KEY',
+    'SECRET_KEY',
+  ];
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
   return (
     <html lang="en">
       <body>
-        <EnvKitProvider envVars={requiredEnvVars}>
+        <EnvKitProvider 
+          requiredVars={requiredVars}
+          fallbackPath="/onboarding" 
+          customFallbackUI={DefaultFallbackUI}
+        >
           {children}
         </EnvKitProvider>
       </body>
@@ -77,168 +74,133 @@ export default function RootLayout({
 }
 ```
 
-### 2. Access Environment Status Anywhere
-
-Use the `useEnvKit` hook to check environment status and refresh when needed:
+2. Create an onboarding page that will serve as a fallback when env vars are missing:
 
 ```tsx
-'use client';
-
-import { useEnvKit } from '@/lib/envkit';
-
-export default function MyComponent() {
-  const { isValid, missingVars, refreshEnv } = useEnvKit();
-
-  return (
-    <div>
-      <p>Environment Status: {isValid ? 'Valid' : 'Missing Variables'}</p>
-      
-      {!isValid && (
-        <div>
-          <p>Missing Variables:</p>
-          <ul>
-            {missingVars.map(v => (
-              <li key={v.name}>{v.name}: {v.description}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      
-      <button onClick={refreshEnv}>Refresh Environment</button>
-    </div>
-  );
+// app/onboarding/page.tsx
+export default function OnboardingPage() {
+  return null; // EnvKit will handle the UI
 }
 ```
 
-## API Reference
-
-### EnvKitProvider
-
-The main component that provides environment validation and fallback UI.
+3. Create an API route handler:
 
 ```tsx
-<EnvKitProvider
-  envVars={requiredVars}
-  fallbackComponent={CustomFallbackUI}
-  failInProduction={true}
-  showFallbackInDev={true}
->
-  {children}
-</EnvKitProvider>
+// app/api/envkit/route.ts
+// Use the direct path to the compiled output for local development
+import { createEnvApiHandler } from '@envkit/nextjs/server';
+import { NextRequest } from 'next/server';
+
+// Using dynamic import for server-only code
+// This ensures proper separation of client and server code
+const handlers = createEnvApiHandler({
+  // Specify your required variables (if not using provider)
+  requiredVars: ['DATABASE_URL', 'API_KEY'],
+  
+  // Optional: Allow access in production (defaults to false)
+  allowInProduction: false,
+  
+  // Optional: Customize the directory for .env files
+  envDir: process.cwd(),
+});
+
+// Export GET and POST handlers for Next.js App Router
+export async function GET(request: NextRequest) {
+  return handlers.statusHandler(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handlers.updateHandler(request);
+}
 ```
 
-#### Props
+## Using Environment Variables
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `envVars` | `EnvVarConfig[]` | Required | Array of environment variables to validate |
-| `fallbackComponent` | `ComponentType<FallbackUIProps>` | Built-in UI | Custom component to render when variables are missing |
-| `failInProduction` | `boolean` | `true` | Whether to throw an error in production when variables are missing |
-| `showFallbackInDev` | `boolean` | `true` | Whether to show fallback UI in development |
-
-### EnvVarConfig
-
-Configuration for each environment variable.
-
-```typescript
-type EnvVarConfig = {
-  name: string;          // Environment variable name
-  required: boolean;     // Whether the variable is required
-  description?: string;  // Description of the variable (used in UI)
-  defaultValue?: string; // Default value if not provided
-};
-```
-
-### useEnvKit Hook
-
-Hook to access environment validation state and functions.
-
-```typescript
-const { 
-  isValid,        // Whether all required variables are present
-  missingVars,    // Array of missing variables
-  allVars,        // Array of all variables
-  checkEnvironment, // Function to manually validate environment
-  refreshEnv      // Function to refresh environment validation
-} = useEnvKit();
-```
-
-## Environment File Priority
-
-EnvKit follows the Next.js convention for loading environment files, with the following priority (highest to lowest):
-
-1. `process.env` - Environment variables set in the actual environment
-2. `.env.local` - Local environment overrides
-3. `.env.{NODE_ENV}.local` - Environment-specific local overrides
-4. `.env.{NODE_ENV}` - Environment-specific variables
-5. `.env` - Default environment variables
-
-## Development vs Production Behavior
-
-### Development Mode
-
-- When required environment variables are missing, shows a fallback UI
-- Allows setting variables through a form or uploading a .env file
-- Updates .env files in real-time
-
-### Production Mode
-
-- Fails to start if required variables are missing
-- No fallback UI is shown
-- No ability to modify .env files
-
-## Best Practices
-
-1. **Keep Sensitive Information Safe**
-   - Never commit .env files to version control
-   - Use .env.example files as templates
-
-2. **Validate Early**
-   - Place EnvKitProvider as high as possible in your component tree
-
-3. **Clear Descriptions**
-   - Provide clear descriptions for all environment variables
-   - Include format details and examples
-
-4. **Use Defaults When Possible**
-   - Provide sensible defaults for non-critical variables
-
-## Custom Fallback UI
-
-You can provide a custom fallback UI component:
+### Accessing Environment Variables
 
 ```tsx
-import { FallbackUIProps } from '@/lib/envkit';
+import { useEnv } from '@envkit/nextjs';
 
-function MyCustomFallbackUI({ validationResult }: FallbackUIProps) {
-  const { missingVars } = validationResult;
+export default function MyComponent() {
+  const { env, isLoading, error } = useEnv();
+  
+  if (isLoading) return <div>Loading environment variables...</div>;
+  if (error) return <div>Error: {error}</div>;
   
   return (
     <div>
-      <h1>Custom Environment Configuration Required</h1>
-      <ul>
-        {missingVars.map(v => (
-          <li key={v.name}>{v.name}</li>
-        ))}
-      </ul>
-      {/* Your custom form to handle env vars */}
+      <h1>Environment Variables</h1>
+      <p>API Key: {env.API_KEY}</p>
     </div>
   );
 }
+```
 
-// In your layout or provider:
+### Advanced Configuration
+
+#### Custom Validation
+
+You can add custom validation rules to your environment variables:
+
+```tsx
+import { EnvKitProvider } from '@envkit/nextjs';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <EnvKitProvider 
+          requiredVars={[
+            { 
+              key: 'API_KEY', 
+              validation: (value) => value.startsWith('sk_') ? null : 'API key must start with sk_',
+              label: 'API Key',
+              description: 'Your secret API key',
+              secret: true
+            },
+            // More vars...
+          ]}
+          fallbackPath="/onboarding"
+        >
+          {children}
+        </EnvKitProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+#### Custom Fallback UI
+
+Create a custom fallback UI component:
+
+```tsx
+import { FallbackUIProps } from '@envkit/nextjs';
+
+function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProps) {
+  // Implementation...
+  return <div>Your custom UI here</div>;
+}
+
+// Then in your layout:
 <EnvKitProvider 
-  envVars={requiredVars} 
-  fallbackComponent={MyCustomFallbackUI}
+  requiredVars={requiredVars}
+  fallbackPath="/onboarding"
+  customFallbackUI={CustomFallbackUI}
 >
   {children}
 </EnvKitProvider>
 ```
 
+## Documentation
+
+For more detailed documentation, visit:
+
+- [Core Package Documentation](/packages/envkit-core/README.md)
+- [Next.js Integration Documentation](/packages/nextjs/README.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Publishing Guide](PUBLISHING.md)
+
 ## License
 
-MIT
-
----
-
-Built with ❤️ by [MahmoudGalal@onboardbase]
+MIT 
