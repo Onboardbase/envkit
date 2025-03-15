@@ -1,5 +1,5 @@
 {
-  "name": "envkit-monorepo",
+  "name": "envkit",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
