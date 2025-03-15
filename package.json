@@ -3,14 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "build:packages": "turbo run build --filter=\"./packages/*\"",
+    "watch:packages": "turbo run dev --filter=\"./packages/*\"",
+    "clean": "turbo run clean",
+    "clean:packages": "turbo run clean --filter=\"./packages/*\"",
+    "dev:nextjs": "yarn workspace @envkit/nextjs dev",
+    "watch:tailwind": "yarn workspace @envkit/nextjs watch:css"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
