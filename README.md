@@ -1,10 +1,10 @@
-# EnvKit
+# EnvKit by Onboardbase
 
 > A powerful, framework-agnostic environment variable management toolkit for modern JavaScript applications.
 
 [![npm version](https://img.shields.io/npm/v/@envkit/core.svg)](https://www.npmjs.com/package/@envkit/core)
 [![npm version](https://img.shields.io/npm/v/@envkit/nextjs.svg)](https://www.npmjs.com/package/@envkit/nextjs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/FSL-1.1-MIT)
 
 EnvKit provides a seamless way to manage environment variables in your applications with built-in validation, UI fallbacks for missing variables, and cross-framework compatibility.
 
@@ -203,4 +203,4 @@ For more detailed documentation, visit:
 
 ## License
 
-MIT 
+FSL-1.1-MIT
