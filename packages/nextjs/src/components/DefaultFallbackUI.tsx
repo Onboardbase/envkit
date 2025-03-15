@@ -154,7 +154,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24 bg-black font-normal tracking-[0.6px]">
+    <div className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24 bg-black">
       <div className="w-full max-w-xl rounded-xl bg-gray-500/10 border-gray-500/15 border relative">
         <div className="w-full p-4 flex items-center space-x-6 border-b border-gray-500/15">
           <a
@@ -175,7 +175,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
           </a>
           <div>
             <h1 className="font-semibold text-base text-white md:text-lg">Welcome to Vercel</h1>
-            <p className="text-[#888F96] text-sm leading-5 font-normal">
+            <p className="text-[#888F96] text-sm leading-5">
                 Configure the required envs to run this application.
               </p>
           </div>
