@@ -185,7 +185,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
             <p>All required environment variables are set! You can now proceed.</p>
             <button 
               onClick={onComplete} 
-              className="mt-4 px-4 py-2 bg-blue-300 text-black rounded hover:bg-blue-400 transition-colors"
+              className="mt-4 w-full md:flex-1 flex justify-center min-w-fit rounded-md cursor-pointer border border-transparent bg-white px-8 py-2 text-sm font-medium leading-6 text-black hover:bg-gray-400 transition-colors"
             >
               Continue to application
             </button>
@@ -199,13 +199,13 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
               </p> */}
               
               {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="bg-red-500/10 border border-red-500/15 text-red-500 px-4 py-3 rounded mb-4">
                   <span className="block sm:inline">{error}</span>
                 </div>
               )}
               
               {success && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <div className="bg-green-500/10 border border-green-500/15 text-green-500 px-4 py-3 rounded mb-4">
                   <span className="block sm:inline">{success}</span>
                 </div>
               )}
@@ -265,21 +265,16 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                   <span>
                     Import from Onboardbase
                   </span>
-                </button>
-                <div className="text-gray-400/50 font-medium text-xs my-2 md:my-0 shrink-0 order-2 md:order-2">OR</div> */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`w-full md:flex-1 flex justify-center min-w-fit rounded-md cursor-pointer border border-transparent bg-blue-300 px-8 py-2 text-sm font-medium leading-6 text-black hover:bg-blue-400 focus:outline-0 order-1 md:order-3 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {isSubmitting ? 'Saving...' : 'Continue'}
-                </button>
-                {/* <div className="relative">
+                </button> */}
+                <div className="relative w-full md:flex-1 flex items-center justify-center min-w-fit border border-gray-500/15 rounded-md cursor-pointer bg-transparent px-3 py-2 text-sm font-medium leading-6 text-white hover:bg-gray-500/10 focus:outline-0 order-3 md:order-1">
                   <label 
                     htmlFor="file-upload" 
-                    className="w-full md:flex-1 flex items-center space-x-3 justify-center min-w-fit border border-gray-500/15 rounded-md cursor-pointer bg-transparent px-3 py-2 text-sm font-medium leading-6 text-white hover:bg-gray-500/10 focus:outline-0 order-3 md:order-1"
+                    className="w-full flex items-center justify-center space-x-3"
                   >
-                    Import from File
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4 text-blue-300">
+                      <path fillRule="evenodd" d="M4.78 4.97a.75.75 0 0 1 0 1.06L2.81 8l1.97 1.97a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06l2.5-2.5a.75.75 0 0 1 1.06 0ZM11.22 4.97a.75.75 0 0 0 0 1.06L13.19 8l-1.97 1.97a.75.75 0 1 0 1.06 1.06l2.5-2.5a.75.75 0 0 0 0-1.06l-2.5-2.5a.75.75 0 0 0-1.06 0ZM8.856 2.008a.75.75 0 0 1 .636.848l-1.5 10.5a.75.75 0 0 1-1.484-.212l1.5-10.5a.75.75 0 0 1 .848-.636Z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Import from .env</span>
                   </label>
                   <input
                     id="file-upload"
@@ -288,7 +283,15 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     onChange={handleFileUpload}
                   />
-                </div> */}
+                </div>
+                <div className="text-gray-400/50 font-medium text-xs my-2 md:my-0 shrink-0 order-2 md:order-2">OR</div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full md:flex-1 flex justify-center min-w-fit rounded-md cursor-pointer border border-transparent bg-blue-300 px-8 py-2 text-sm font-medium leading-6 text-black hover:bg-blue-400 focus:outline-0 order-1 md:order-3 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isSubmitting ? 'Saving...' : 'Continue'}
+                </button>
               </div>
             </form>
           </>
