@@ -215,7 +215,6 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
             <form onSubmit={handleSubmit}>
               <div className="w-full border-b border-gray-500/15 p-4 py-6">
                 <div className="relative w-full grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-6">
-                  <div className="">
                     {envVars.map((envVar, index) => (
                       <div key={envVar.key} className="sm:col-span-3">
                         <label 
@@ -223,9 +222,9 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                           className="block text-sm font-medium text-white"
                         >
                           {envVar.label || envVar.key}
-                          {envVar.description && (
+                          {/* {envVar.description && (
                             <span className="ml-1 text-xs text-white">({envVar.description})</span>
-                          )}
+                          )} */}
                         </label>
                         <div className="mt-2">
                           <input
@@ -233,13 +232,12 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                             id={`env-${envVar.key}`}
                             value={envVar.value}
                             onChange={(e) => handleInputChange(index, e.target.value)}
-                            className="w-full px-3 py-2 font-mono border border-gray-500/15 sm:leading-6 text-white bg-gray-500/5 rounded-md focus:outline-none focus:ring-0 focus:border-gray-500/15"
+                            className="w-full px-3 py-1.5 font-mono border border-gray-500/15 sm:leading-6 text-xs text-white bg-gray-500/5 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-0 focus:border-gray-500/15"
                             placeholder={envVar.placeholder || `Enter ${envVar.key}`}
                           />
                         </div>
                       </div>
                     ))}
-                  </div>
                 </div>
               </div>
               <div className="p-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
