@@ -25,6 +25,7 @@
     "build": "npm run build:js && npm run build:css",
     "build:js": "tsc --declaration --outDir ./dist --rootDir ./src --noEmit false",
     "build:css": "tailwindcss -i ./src/styles/tailwind.css -o ./dist/styles.css",
+    "watch:css": "tailwindcss -i ./src/styles/tailwind.css -o ./dist/styles.css --watch",
     "clean": "rimraf dist",
     "lint": "eslint src --ext .ts,.tsx"
   },
