@@ -137,7 +137,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
   // If still loading, show a spinner
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-black font-normal tracking-[0.6px]">
+      <div className="flex min-h-screen antialiased flex-col items-center justify-center p-24 bg-black font-normal tracking-[0.6px]">
         <div className="mb-5">
           <div className="flex items-center space-x-2 text-white">
             <div className='w-5 h-5 flex items-center justify-center'>
@@ -156,7 +156,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24 bg-black overflow-hidden relative">
+    <div className="flex min-h-screen antialiased flex-col items-center justify-center p-6 md:p-24 bg-black overflow-hidden relative">
       {/* Moon */}
       <div className="fixed top-12 right-12 pointer-events-none">
         <div className="moon relative w-16 h-16 rounded-full bg-gradient-to-b from-[#ffffff] via-[#f4f4f4] to-[#e8e8e8]">
@@ -209,7 +209,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
 
       <div className="relative w-full max-w-xl">
         {/* Hero section */}
-        <div className="text-white w-full md:w-64 mx-auto text-center mb-8">
+        <div className="text-white w-full md:w-64 mx-auto text-center mb-10">
           <div className="relative">  
             <div className="font-bold text-6xl text-blue-300">
               <span className="inline-block">Envkit</span>
@@ -222,7 +222,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
               <div className="w-2 h-2 rounded-full bg-blue-300/20"></div>
             </div>
             
-            <div className="text-[#888F96] mt-2 font-normal relative">
+            <div className="text-[#888F96] mt-2 relative">
               The world's first 
               <span className="font-mono font-semibold text-white relative group inline-flex items-center mx-1">
                 <span className="opacity-50">&lt;</span>
