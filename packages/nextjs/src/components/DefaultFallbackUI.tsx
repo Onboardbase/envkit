@@ -377,7 +377,7 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
           <a
             href="https://onboardbase.com"
             target="_blank"
-            className="flex flex-row -rotate-90 translate-y-36 items-center justify-start origin-bottom-left py-1 px-3 gap-1 rounded-b-none border border-gray-500/15 border-b-0 absolute left-0 -ml-[1.2px] top-4 rounded-lg bg-gray-500/10"
+            className="flex flex-row -rotate-90 translate-y-40 items-center justify-start origin-bottom-left py-1.5 px-3 gap-1 rounded-b-none border border-gray-500/15 border-b-0 absolute left-0 -ml-[1.2px] top-4 rounded-lg bg-gray-500/10"
           >
             <span className="text-[10px] font-medium text-[#888F96]">Powered by</span>
             <div className="text-blue-300 flex items-center justify-center h-[11px]">
