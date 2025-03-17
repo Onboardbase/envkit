@@ -322,49 +322,49 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
             </div>
           ) : (
             <>
-              <div>
-                {/* <p className="mb-6 text-[#888F96] text-xs leading-5 p-4">
+              {/* <div>
+                <p className="mb-6 text-[#888F96] text-xs leading-5 p-4">
                   The following environment variables are required to run this application. 
                   Please fill them in below:
-                </p> */}
+                </p>
                 
                 {error && (
-                  <div className="bg-red-500/10 border text-xs border-red-500/15 text-red-500 px-4 py-3 rounded mb-4">
+                  <div className="bg-red-500/5 border text-xs border-red-500/10 text-red-300 p-2 w-full mx-4 rounded mb-4">
                     <span className="block sm:inline">{error}</span>
                   </div>
                 )}
                 
                 {success && (
-                  <div className="bg-green-500/10 border text-xs border-green-500/15 text-green-500 px-4 py-3 rounded mb-4">
+                  <div className="bg-green-500/5 border text-xs border-green-500/10 text-green-300 p-2 w-full mx-4 rounded mb-4">
                     <span className="block sm:inline">{success}</span>
                   </div>
                 )}
-              </div>
+              </div> */}
               <form ref={formRef} onSubmit={handleSubmit}>
-                <div className="space-y-8">
+                <div className="w-full border-b border-gray-500/15 p-4 py-6 min-h-28">
                   <div className="space-y-6">
                     {/* Paste status message */}
                     {pasteStatus && (
-                      <div className="w-full mb-4 p-2 bg-blue-500/20 border border-blue-500/30 rounded-md text-center">
-                        <p className="text-blue-300 text-sm">{pasteStatus}</p>
+                      <div className="w-full mb-4 p-2 bg-blue-500/5 border border-blue-500/10 rounded-md text-center">
+                        <p className="text-blue-300 text-xs">{pasteStatus}</p>
                       </div>
                     )}
 
                     {/* Error message */}
                     {error && (
-                      <div className="w-full mb-4 p-2 bg-red-500/20 border border-red-500/30 rounded-md text-center">
-                        <p className="text-red-300 text-sm">{error}</p>
+                      <div className="w-full mb-4 p-2 bg-red-500/5 border border-red-500/10 rounded-md text-center">
+                        <p className="text-red-300 text-xs">{error}</p>
                       </div>
                     )}
 
                     {/* Success message */}
                     {success && (
-                      <div className="w-full mb-4 p-2 bg-green-500/20 border border-green-500/30 rounded-md text-center">
+                      <div className="w-full mb-4 p-2 text-xs bg-green-500/5 border border-green-500/10 rounded-md text-center">
                         <p className="text-green-300 text-sm">{success}</p>
                       </div>
                     )}
                   
-                    <div className="flex flex-wrap gap-4">
+                    <div className={`flex flex-wrap gap-4 ${envVars.length > 5 ? 'max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-gray-500/5 scrollbar-thumb-gray-500/20 hover:scrollbar-thumb-gray-500/30' : ''}`}>
                       {envVars.map((envVar, index) => (
                         <div key={envVar.key} className="flex-1 min-w-[250px]">
                           <label 
@@ -372,9 +372,9 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                             className="block text-sm font-medium text-white"
                           >
                             {envVar.label || envVar.key}
-                            {envVar.description && (
+                            {/* {envVar.description && (
                               <span className="ml-1 text-xs text-gray-400">({envVar.description})</span>
-                            )}
+                            )} */}
                           </label>
                           <div className="mt-2">
                             <input
@@ -429,7 +429,8 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                     <input
                       id="file-upload"
                       type="file"
-                      accept=".env,.json"
+                      accept=".env,.env.*,text/plain,.json"
+                      // accept=".env,.json"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       onChange={handleFileUpload}
                     />
@@ -557,6 +558,26 @@ const styles = `
   background: white;
   border-radius: 50%;
   box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Scrollbar Styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(75, 85, 99, 0.05);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.2);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.3);
 }
 `;
 
