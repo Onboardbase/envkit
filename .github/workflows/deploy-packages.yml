@@ -1,0 +1,115 @@
+name: Deploy Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., patch, minor, major, or specific version like 1.2.3)'
+        required: true
+        default: 'patch'
+        type: string
+      tag:
+        description: 'npm tag (e.g., latest, beta, next)'
+        required: true
+        default: 'latest'
+        type: string
+
+jobs:
+  deploy:
+    name: Build and Deploy Packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build packages
+        run: yarn build:packages
+
+      - name: Get current version of core package
+        id: core-version
+        run: |
+          echo "version=$(node -p "require('./packages/core/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Get current version of nextjs package
+        id: nextjs-version
+        run: |
+          echo "version=$(node -p "require('./packages/nextjs/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Version update - core
+        working-directory: packages/core
+        if: ${{ github.event.inputs.version != '' }}
+        run: |
+          if [[ "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          else
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          fi
+
+      - name: Version update - nextjs
+        working-directory: packages/nextjs
+        if: ${{ github.event.inputs.version != '' }}
+        run: |
+          if [[ "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          else
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          fi
+
+      - name: Update core dependency in nextjs package
+        working-directory: packages/nextjs
+        run: |
+          NEW_CORE_VERSION=$(node -p "require('../core/package.json').version")
+          npm pkg set dependencies.@envkit/core="^${NEW_CORE_VERSION}"
+
+      - name: Publish @envkit/core
+        working-directory: packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
+        run: npm publish --tag ${{ github.event.inputs.tag }} --access public
+
+      - name: Publish @envkit/nextjs
+        working-directory: packages/nextjs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
+        run: npm publish --tag ${{ github.event.inputs.tag }} --access public
+
+      - name: Get new versions
+        id: new-versions
+        run: |
+          CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+          NEXTJS_VERSION=$(node -p "require('./packages/nextjs/package.json').version")
+          echo "core=$CORE_VERSION" >> $GITHUB_OUTPUT
+          echo "nextjs=$NEXTJS_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag for Core
+        run: |
+          git tag @envkit/core-v${{ steps.new-versions.outputs.core }}
+          git push origin @envkit/core-v${{ steps.new-versions.outputs.core }}
+
+      - name: Create Git Tag for Next.js
+        run: |
+          git tag @envkit/nextjs-v${{ steps.new-versions.outputs.nextjs }}
+          git push origin @envkit/nextjs-v${{ steps.new-versions.outputs.nextjs }}
+
+      - name: Commit version changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add packages/core/package.json packages/nextjs/package.json
+          git commit -m "chore: bump versions [skip ci]" || echo "No changes to commit"
+          git push

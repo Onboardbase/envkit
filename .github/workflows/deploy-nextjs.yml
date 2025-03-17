@@ -1,0 +1,99 @@
+name: Deploy Next.js Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., patch, minor, major, or specific version like 1.2.3)'
+        required: true
+        default: 'patch'
+        type: string
+      tag:
+        description: 'npm tag (e.g., latest, beta, next)'
+        required: true
+        default: 'latest'
+        type: string
+      update_core_dependency:
+        description: 'Update @envkit/core dependency to latest?'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  deploy-nextjs:
+    name: Build and Deploy Next.js Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check latest @envkit/core version from npm
+        if: ${{ github.event.inputs.update_core_dependency == 'true' }}
+        id: core-version
+        run: |
+          LATEST_CORE_VERSION=$(npm view @envkit/core version)
+          echo "version=$LATEST_CORE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update core dependency
+        if: ${{ github.event.inputs.update_core_dependency == 'true' }}
+        working-directory: packages/nextjs
+        run: |
+          npm pkg set dependencies.@envkit/core="^${{ steps.core-version.outputs.version }}"
+
+      - name: Build nextjs package
+        run: yarn workspace @envkit/nextjs build
+
+      - name: Get current version of nextjs package
+        id: current-version
+        run: |
+          echo "version=$(node -p "require('./packages/nextjs/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Version update
+        working-directory: packages/nextjs
+        if: ${{ github.event.inputs.version != '' }}
+        run: |
+          if [[ "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          else
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          fi
+
+      - name: Publish @envkit/nextjs
+        working-directory: packages/nextjs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
+        run: npm publish --tag ${{ github.event.inputs.tag }} --access public
+
+      - name: Get new version
+        id: new-version
+        run: |
+          NEXTJS_VERSION=$(node -p "require('./packages/nextjs/package.json').version")
+          echo "version=$NEXTJS_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git tag @envkit/nextjs-v${{ steps.new-version.outputs.version }}
+          git push origin @envkit/nextjs-v${{ steps.new-version.outputs.version }}
+
+      - name: Commit version changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add packages/nextjs/package.json
+          git commit -m "chore: bump nextjs version to ${{ steps.new-version.outputs.version }} [skip ci]" || echo "No changes to commit"
+          git push

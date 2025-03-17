@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FallbackUIProps, EnvVarInfo } from './EnvKitProvider';
 import { envKitApi } from '../api';
 
@@ -16,8 +16,36 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [bulkPasteContent, setBulkPasteContent] = useState<string>('');
-  const [showBulkPaste, setShowBulkPaste] = useState<boolean>(false);
+  const [pasteStatus, setPasteStatus] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Detect paste events globally to handle bulk pasting
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      if (!formRef.current?.contains(e.target as Node)) {
+        // Paste occurred outside a specific input, handle it as a bulk paste
+        const clipboardData = e.clipboardData?.getData('text') || '';
+        if (clipboardData.trim()) {
+          try {
+            const parsedVars = parseEnvFile(clipboardData);
+            updateEnvVarsFromParsed(parsedVars);
+            setPasteStatus('Environment variables parsed successfully!');
+            setTimeout(() => setPasteStatus(null), 3000);
+          } catch (err) {
+            setError('Failed to parse the pasted content.');
+            setTimeout(() => setError(null), 3000);
+          }
+        }
+      }
+    };
+
+    // Add paste event listener to window
+    window.addEventListener('paste', handleGlobalPaste);
+    
+    return () => {
+      window.removeEventListener('paste', handleGlobalPaste);
+    };
+  }, []);
 
   const handleInputChange = (index: number, value: string) => {
     const updatedVars = [...envVars];
@@ -25,21 +53,23 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
     setEnvVars(updatedVars);
   };
 
-  const handleBulkPasteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setBulkPasteContent(e.target.value);
-  };
+  // Handle paste events directly on inputs
+  const handleInputPaste = (e: React.ClipboardEvent, index: number) => {
+    const clipboardData = e.clipboardData.getData('text');
+    const lines = clipboardData.split('\n');
 
-  const applyBulkPaste = () => {
-    try {
-      // Process the pasted content
-      const parsedVars = parseEnvFile(bulkPasteContent);
-      updateEnvVarsFromParsed(parsedVars);
-      setShowBulkPaste(false); // Hide the textarea after applying
-      setBulkPasteContent(''); // Clear the textarea
-      setError(null); // Clear any previous errors
-    } catch (err) {
-      setError('Failed to parse the pasted content. Please ensure it\'s in a valid format.');
-      console.error(err);
+    // If paste contains multiple lines, it might be a bulk paste
+    if (lines.length > 1) {
+      e.preventDefault(); // Prevent default paste to input
+      try {
+        const parsedVars = parseEnvFile(clipboardData);
+        updateEnvVarsFromParsed(parsedVars);
+        setPasteStatus('Environment variables parsed successfully!');
+        setTimeout(() => setPasteStatus(null), 3000);
+      } catch (err) {
+        setError('Failed to parse the pasted content.');
+        setTimeout(() => setError(null), 3000);
+      }
     }
   };
 
@@ -310,56 +340,41 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                   </div>
                 )}
               </div>
-              <form onSubmit={handleSubmit}>
-                <div className="w-full border-b border-gray-500/15 p-4 py-6">
-                  {/* Bulk paste option */}
-                  <div className="mb-6 flex justify-between items-center">
-                    <button 
-                      type="button" 
-                      onClick={() => setShowBulkPaste(!showBulkPaste)}
-                      className="text-sm text-blue-300 hover:text-blue-400 focus:outline-none flex items-center"
-                    >
-                      {showBulkPaste ? 'Hide bulk paste' : 'Bulk paste secrets'} 
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showBulkPaste ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  {showBulkPaste && (
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-white mb-2">
-                        Paste multiple secrets at once (KEY=VALUE format)
-                      </label>
-                      <textarea
-                        value={bulkPasteContent}
-                        onChange={handleBulkPasteChange}
-                        className="w-full h-32 px-3 py-2 font-mono border border-gray-500/15 sm:leading-6 text-xs text-white bg-gray-500/5 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-0 focus:border-gray-500/15"
-                        placeholder="Paste your secrets here in KEY=VALUE format (one per line)"
-                      />
-                      <div className="flex justify-end mt-2">
-                        <button 
-                          type="button" 
-                          onClick={applyBulkPaste}
-                          className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 focus:outline-none"
-                        >
-                          Apply
-                        </button>
+              <form ref={formRef} onSubmit={handleSubmit}>
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    {/* Paste status message */}
+                    {pasteStatus && (
+                      <div className="w-full mb-4 p-2 bg-blue-500/20 border border-blue-500/30 rounded-md text-center">
+                        <p className="text-blue-300 text-sm">{pasteStatus}</p>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  <div className="relative w-full grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-6">
+                    {/* Error message */}
+                    {error && (
+                      <div className="w-full mb-4 p-2 bg-red-500/20 border border-red-500/30 rounded-md text-center">
+                        <p className="text-red-300 text-sm">{error}</p>
+                      </div>
+                    )}
+
+                    {/* Success message */}
+                    {success && (
+                      <div className="w-full mb-4 p-2 bg-green-500/20 border border-green-500/30 rounded-md text-center">
+                        <p className="text-green-300 text-sm">{success}</p>
+                      </div>
+                    )}
+                  
+                    <div className="flex flex-wrap gap-4">
                       {envVars.map((envVar, index) => (
-                        <div key={envVar.key} className="sm:col-span-3">
+                        <div key={envVar.key} className="flex-1 min-w-[250px]">
                           <label 
                             htmlFor={`env-${envVar.key}`} 
                             className="block text-sm font-medium text-white"
                           >
                             {envVar.label || envVar.key}
-                            {/* {envVar.description && (
-                              <span className="ml-1 text-xs text-white">({envVar.description})</span>
-                            )} */}
+                            {envVar.description && (
+                              <span className="ml-1 text-xs text-gray-400">({envVar.description})</span>
+                            )}
                           </label>
                           <div className="mt-2">
                             <input
@@ -367,12 +382,14 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                               id={`env-${envVar.key}`}
                               value={envVar.value}
                               onChange={(e) => handleInputChange(index, e.target.value)}
+                              onPaste={(e) => handleInputPaste(e, index)}
                               className="w-full px-3 py-1.5 font-mono border border-gray-500/15 sm:leading-6 text-xs text-white bg-gray-500/5 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-0 focus:border-gray-500/15"
                               placeholder={envVar.placeholder || `Enter ${envVar.key}`}
                             />
                           </div>
                         </div>
                       ))}
+                    </div>
                   </div>
                 </div>
                 <div className="p-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -381,10 +398,8 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
                     className="w-full md:flex-1 flex items-center space-x-3 justify-center min-w-fit border border-gray-500/15 rounded-md cursor-pointer bg-transparent px-3 py-2 text-sm font-medium leading-6 text-white hover:bg-gray-500/10 focus:outline-0 order-3 md:order-1"
                   >
                       <div className="w-5 h-5 flex items-center justify-center rounded-sm">
-                        <svg width="512" height="512" viewBox="0 0 512 512" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <g clipPath="url(#clip0_1220_475)">
-                          <rect width="512" height="512" rx="40" fill="black"/>
-                          <path d="M527.515 29.5133L509.931 41.8258C492.347 53.9539 457.18 78.8557 422.012 76.2272C386.844 73.7831 351.677 44.2699 316.509 46.714C281.341 49.3425 246.174 83.4672 211.006 88.5398C175.838 93.6123 140.671 68.7105 105.503 56.5825C70.3353 44.2699 35.1677 44.2699 17.5838 44.2699H0V3.8147e-05L17.5838 3.8147e-05C35.1677 3.8147e-05 70.3353 3.8147e-05 105.503 3.8147e-05C140.671 3.8147e-05 175.838 3.8147e-05 211.006 3.8147e-05C246.174 3.8147e-05 281.341 3.8147e-05 316.509 3.8147e-05C351.677 3.8147e-05 386.844 3.8147e-05 422.012 3.8147e-05C457.18 3.8147e-05 492.347 3.8147e-05 509.931 3.8147e-05H527.515V29.5133Z" fill="#6772E5"/>
+                        <svg className="text-white w-full h-full" viewBox="0 0 370 370" fill="#ffffff" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path fillRule="evenodd" clipRule="evenodd" d="M527.515 29.5133L509.931 41.8258C492.347 53.9539 457.18 78.8557 422.012 76.2272C386.844 73.7831 351.677 44.2699 316.509 46.714C281.341 49.3425 246.174 83.4672 211.006 88.5398C175.838 93.6123 140.671 68.7105 105.503 56.5825C70.3353 44.2699 35.1677 44.2699 17.5838 44.2699H0V3.8147e-05L17.5838 3.8147e-05C35.1677 3.8147e-05 70.3353 3.8147e-05 105.503 3.8147e-05C140.671 3.8147e-05 175.838 3.8147e-05 211.006 3.8147e-05C246.174 3.8147e-05 281.341 3.8147e-05 316.509 3.8147e-05C351.677 3.8147e-05 386.844 3.8147e-05 422.012 3.8147e-05C457.18 3.8147e-05 492.347 3.8147e-05 509.931 3.8147e-05H527.515V29.5133Z" fill="#6772E5"/>
                           <path d="M0 484.727L17.0667 472.752C34.1333 460.957 68.2667 436.739 102.4 439.295C136.533 441.672 170.667 470.375 204.8 467.998C238.933 465.442 273.067 432.254 307.2 427.321C341.333 422.387 375.467 446.606 409.6 458.401C443.733 470.375 477.867 470.375 494.933 470.375H512V513.43H494.933C477.867 513.43 443.733 513.43 409.6 513.43C375.467 513.43 341.333 513.43 307.2 513.43C273.067 513.43 238.933 513.43 204.8 513.43C170.667 513.43 136.533 513.43 102.4 513.43C68.2667 513.43 34.1333 513.43 17.0667 513.43H0V484.727Z" fill="#F5BE58"/>
                           <rect width="34.7108" height="196.795" transform="matrix(0.983621 0.180249 -0.189433 0.981894 132.901 160)" fill="#6772E5"/>
                           <rect width="34.7108" height="196.795" transform="matrix(0.983775 0.179408 -0.190319 0.981722 202.394 165.618)" fill="#F5BE58"/>

@@ -2,17 +2,46 @@
   "name": "@envkit/core",
   "version": "0.1.0",
   "description": "Framework-agnostic core functionality for EnvKit",
+  "author": "Onboardbase",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Onboardbase/envkit.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/Onboardbase/envkit#readme",
+  "bugs": {
+    "url": "https://github.com/Onboardbase/envkit/issues"
+  },
+  "keywords": [
+    "environment",
+    "variables",
+    "env",
+    "secrets",
+    "config",
+    "management",
+    "dotenv",
+    "onboardbase"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rimraf dist",
-    "lint": "eslint \"src/**/*.ts*\""
+    "lint": "eslint \"src/**/*.ts*\"",
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
     "valibot": "^0.15.0"
