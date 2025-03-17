@@ -16,11 +16,31 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [bulkPasteContent, setBulkPasteContent] = useState<string>('');
+  const [showBulkPaste, setShowBulkPaste] = useState<boolean>(false);
 
   const handleInputChange = (index: number, value: string) => {
     const updatedVars = [...envVars];
     updatedVars[index].value = value;
     setEnvVars(updatedVars);
+  };
+
+  const handleBulkPasteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setBulkPasteContent(e.target.value);
+  };
+
+  const applyBulkPaste = () => {
+    try {
+      // Process the pasted content
+      const parsedVars = parseEnvFile(bulkPasteContent);
+      updateEnvVarsFromParsed(parsedVars);
+      setShowBulkPaste(false); // Hide the textarea after applying
+      setBulkPasteContent(''); // Clear the textarea
+      setError(null); // Clear any previous errors
+    } catch (err) {
+      setError('Failed to parse the pasted content. Please ensure it\'s in a valid format.');
+      console.error(err);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -292,6 +312,43 @@ export function DefaultFallbackUI({ missingVars, isLoading, onComplete }: Fallba
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="w-full border-b border-gray-500/15 p-4 py-6">
+                  {/* Bulk paste option */}
+                  <div className="mb-6 flex justify-between items-center">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowBulkPaste(!showBulkPaste)}
+                      className="text-sm text-blue-300 hover:text-blue-400 focus:outline-none flex items-center"
+                    >
+                      {showBulkPaste ? 'Hide bulk paste' : 'Bulk paste secrets'} 
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showBulkPaste ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  {showBulkPaste && (
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium text-white mb-2">
+                        Paste multiple secrets at once (KEY=VALUE format)
+                      </label>
+                      <textarea
+                        value={bulkPasteContent}
+                        onChange={handleBulkPasteChange}
+                        className="w-full h-32 px-3 py-2 font-mono border border-gray-500/15 sm:leading-6 text-xs text-white bg-gray-500/5 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-0 focus:border-gray-500/15"
+                        placeholder="Paste your secrets here in KEY=VALUE format (one per line)"
+                      />
+                      <div className="flex justify-end mt-2">
+                        <button 
+                          type="button" 
+                          onClick={applyBulkPaste}
+                          className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 focus:outline-none"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="relative w-full grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-6">
                       {envVars.map((envVar, index) => (
                         <div key={envVar.key} className="sm:col-span-3">
