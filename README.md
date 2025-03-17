@@ -196,11 +196,11 @@ function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProp
 
 For more detailed documentation, visit:
 
-- [Core Package Documentation](/packages/envkit-core/README.md)
-- [Next.js Integration Documentation](/packages/nextjs/README.md)
+<!-- - [Core Package Documentation](/packages/envkit-core/README.md)
+- [Next.js Integration Documentation](/packages/nextjs/README.md) -->
 - [Contributing Guide](CONTRIBUTING.md)
-- [Publishing Guide](PUBLISHING.md)
+<!-- - [Publishing Guide](PUBLISHING.md) -->
 
 ## License
 
-FSL-1.1-MIT
+This project is licensed under the FSL-1.1-MIT License. See the [LICENSE](/LICENSE) file for details.
