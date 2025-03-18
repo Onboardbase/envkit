@@ -39,6 +39,11 @@ export interface FallbackUIProps {
    * Users can toggle visibility for individual variables
    */
   maskAllEnvs?: boolean;
+  /**
+   * When true, users cannot add new environment variables
+   * Only the required variables will be shown
+   */
+  disableAddNew?: boolean;
 }
 
 interface EnvKitProviderProps {
@@ -94,6 +99,13 @@ interface EnvKitProviderProps {
    * @default false
    */
   maskAllEnvs?: boolean;
+
+  /**
+   * When true, users cannot add new environment variables
+   * Only the required variables will be shown
+   * @default false
+   */
+  disableAddNew?: boolean;
 }
 
 /**
@@ -111,6 +123,7 @@ export function EnvKitProvider({
   description,
   onMissingVars,
   maskAllEnvs = false,
+  disableAddNew = false,
 }: EnvKitProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -184,6 +197,7 @@ export function EnvKitProvider({
           title={title}
           description={description}
           maskAllEnvs={maskAllEnvs}
+          disableAddNew={disableAddNew}
         />
       );
     }
@@ -198,6 +212,7 @@ export function EnvKitProvider({
         description={description}
         isLoading={isLoading}
         maskAllEnvs={maskAllEnvs}
+        disableAddNew={disableAddNew}
       />
     );
   }

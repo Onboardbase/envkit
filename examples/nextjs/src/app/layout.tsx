@@ -32,6 +32,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           requiredVars={requiredVars}
           fallbackPath="/onboarding"
           customFallbackUI={DefaultFallbackUI}
+          disableAddNew={true}
         >
           {children}
         </EnvKitProvider>
