@@ -26,9 +26,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body>
         <EnvKitProvider
           logoUrl='https://onboardbase.com/assets/img/home/github.svg'
-          title="Welcome to Onboardbase"
+          title="Welcome to Github"
           maskAllEnvs={true}
-          description="Configure the envs to start this application."
+          description="Configure the required envs to run this application."
           requiredVars={requiredVars}
           fallbackPath="/onboarding"
           customFallbackUI={DefaultFallbackUI}

@@ -65,6 +65,8 @@ export default function RootLayout({ children }) {
           requiredVars={requiredVars}
           fallbackPath="/onboarding" 
           customFallbackUI={DefaultFallbackUI}
+          maskAllEnvs={true}
+          disableAddNew={true}
           logoUrl="https://yourcompany.com/logo.png" // Optional custom logo
           title="Environment Setup Required" // Optional custom title
           description="Please provide the following variables to continue" // Optional custom description
@@ -205,7 +207,9 @@ function CustomFallbackUI({
   onSubmit, 
   logoUrl, 
   title, 
-  description 
+  description,
+  maskAllEnvs,
+  disableAddNew,
 }: FallbackUIProps) {
   // Implementation...
   return <div>Your custom UI here</div>;
@@ -218,6 +222,8 @@ function CustomFallbackUI({
   customFallbackUI={CustomFallbackUI}
   logoUrl="https://yourcompany.com/logo.png" // These props will be passed to your custom component
   title="Environment Setup"
+  maskAllEnvs={true}
+  disableAddNew={true}
   description="Please enter the required environment variables"
 >
   {children}
