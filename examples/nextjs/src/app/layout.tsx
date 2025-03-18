@@ -24,7 +24,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta name="description" content="Next.js application with EnvKit for environment variable management" />
       </head>
       <body>
-        <EnvKitProvider 
+        <EnvKitProvider
+          logoUrl='https://onboardbase.com/assets/img/home/github.svg'
+          title="Welcome "
+          maskAllEnvs={true}
+          description="The this application to function properly."
           requiredVars={requiredVars}
           fallbackPath="/onboarding"
           customFallbackUI={DefaultFallbackUI}

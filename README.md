@@ -65,6 +65,9 @@ export default function RootLayout({ children }) {
           requiredVars={requiredVars}
           fallbackPath="/onboarding" 
           customFallbackUI={DefaultFallbackUI}
+          logoUrl="https://yourcompany.com/logo.png" // Optional custom logo
+          title="Environment Setup Required" // Optional custom title
+          description="Please provide the following variables to continue" // Optional custom description
         >
           {children}
         </EnvKitProvider>
@@ -172,12 +175,38 @@ export default function RootLayout({ children }) {
 
 #### Custom Fallback UI
 
+EnvKit provides several customization options for the fallback UI:
+
+##### Using Appearance Options
+
+```tsx
+// Customize the appearance without creating a custom component
+<EnvKitProvider 
+  requiredVars={requiredVars}
+  fallbackPath="/onboarding"
+  logoUrl="https://yourcompany.com/logo.png" // Custom logo URL
+  title="Environment Setup" // Custom title
+  description="Please enter the required environment variables" // Custom description
+>
+  {children}
+</EnvKitProvider>
+```
+
+##### Using a Fully Custom Component
+
 Create a custom fallback UI component:
 
 ```tsx
 import { FallbackUIProps } from '@envkit/nextjs';
 
-function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProps) {
+function CustomFallbackUI({ 
+  missingVars, 
+  isLoading, 
+  onSubmit, 
+  logoUrl, 
+  title, 
+  description 
+}: FallbackUIProps) {
   // Implementation...
   return <div>Your custom UI here</div>;
 }
@@ -187,6 +216,9 @@ function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProp
   requiredVars={requiredVars}
   fallbackPath="/onboarding"
   customFallbackUI={CustomFallbackUI}
+  logoUrl="https://yourcompany.com/logo.png" // These props will be passed to your custom component
+  title="Environment Setup"
+  description="Please enter the required environment variables"
 >
   {children}
 </EnvKitProvider>

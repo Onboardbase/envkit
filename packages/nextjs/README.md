@@ -27,58 +27,29 @@ pnpm add @envkit/nextjs
 
 ## Usage
 
-### 1. Define your environment schema
+### Basic Setup
 
-```typescript
-// env.ts
-import { createEnvSchema } from '@envkit/nextjs';
-import { string, number, boolean } from 'valibot';
-
-export const envSchema = createEnvSchema({
-  DATABASE_URL: {
-    schema: string(),
-    description: 'URL of the database',
-    required: true
-  },
-  API_KEY: {
-    schema: string(),
-    description: 'API key for external service',
-    secret: true,
-    required: true
-  },
-  DEBUG: {
-    schema: boolean(),
-    description: 'Enable debug mode',
-    default: false
-  },
-  PORT: {
-    schema: number(),
-    description: 'Port for the server',
-    default: 3000
-  }
-});
-
-// Infer the type from the schema
-export type Env = typeof envSchema.type;
-```
-
-### 2. Set up the EnvKit provider
+Wrap your application with `EnvKitProvider` in your Next.js App Router layout or page:
 
 ```tsx
 // app/layout.tsx
 import { EnvKitProvider } from '@envkit/nextjs';
-import { envSchema } from './env';
-import '@envkit/nextjs/styles.css';
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }) {
+  // List of environment variables that are required for your app
+  const requiredVars = [
+    'API_KEY',
+    'DATABASE_URL',
+    // Add all required environment variables here
+  ];
+
   return (
     <html lang="en">
       <body>
-        <EnvKitProvider schema={envSchema}>
+        <EnvKitProvider 
+          requiredVars={requiredVars}
+          fallbackPath="/env-setup" // Optional, defaults to '/env-setup'
+        >
           {children}
         </EnvKitProvider>
       </body>
@@ -87,36 +58,113 @@ export default function RootLayout({
 }
 ```
 
-### 3. Use environment variables
+### Customizing the UI
+
+You can customize the environment setup UI by providing additional props:
 
 ```tsx
-// app/page.tsx
-import { getEnv } from '@envkit/nextjs';
-import { envSchema } from './env';
+<EnvKitProvider 
+  requiredVars={requiredVars}
+  logoUrl="https://yourcompany.com/logo.png" 
+  title="Environment Setup" 
+  description="Please provide the required environment variables"
+  maskAllEnvs={true} // Mask all environment variable values by default
+>
+  {children}
+</EnvKitProvider>
+```
 
-export default async function Home() {
-  const env = getEnv(envSchema);
-  
+#### Masking Environment Variables
+
+You can choose to mask all environment variable values by default, providing a toggle button for users to show/hide values:
+
+```tsx
+<EnvKitProvider 
+  requiredVars={requiredVars}
+  maskAllEnvs={true} // Enables masking of all environment variable values
+>
+  {children}
+</EnvKitProvider>
+```
+
+### Custom Fallback UI
+
+You can also provide a completely custom UI by creating your own component:
+
+```tsx
+import { FallbackUIProps } from '@envkit/nextjs';
+
+function MyCustomFallbackUI({
+  missingVars,
+  isLoading,
+  onSubmit,
+  logoUrl,
+  title,
+  description,
+  maskAllEnvs
+}: FallbackUIProps) {
+  // Your custom implementation here
   return (
     <div>
-      <h1>Environment Variables</h1>
-      <p>Debug mode: {env.DEBUG ? 'Enabled' : 'Disabled'}</p>
-      <p>Port: {env.PORT}</p>
-      {/* API_KEY won't be exposed to the client */}
+      {logoUrl && <img src={logoUrl} alt="Logo" />}
+      <h1>{title || "Environment Setup"}</h1>
+      <p>{description || "Please configure your environment variables"}</p>
+      
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}>
+        {missingVars.map((variable) => (
+          <div key={variable.key}>
+            <label>{variable.key}</label>
+            <input 
+              type={maskAllEnvs ? "password" : "text"} 
+              placeholder={variable.placeholder || `Enter ${variable.key}`}
+            />
+          </div>
+        ))}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Submitting..." : "Submit"}
+        </button>
+      </form>
     </div>
   );
 }
+
+// Then in your layout:
+<EnvKitProvider 
+  requiredVars={requiredVars}
+  customFallbackUI={MyCustomFallbackUI}
+  logoUrl="https://yourcompany.com/logo.png" 
+  title="Environment Setup"
+  description="Please configure your environment"
+>
+  {children}
+</EnvKitProvider>
 ```
 
-### 4. API route for environment variable management
+### Global Paste Functionality
+
+The default fallback UI includes a global paste handler that allows users to paste key-value pairs from their clipboard anywhere on the page. This makes it easy to copy values from a .env file or another source and paste them directly into the form.
+
+Supported formats:
+- `.env` format: `KEY=value`
+- JSON format: `{"KEY": "value"}`
+- CSV format: `KEY,value`
+
+When pasted, EnvKit will automatically parse the key-value pairs and populate the form fields with the corresponding values.
+
+## Advanced Configuration
+
+### API Route for Environment Variable Management
+
+You can create an API route to manage environment variables:
 
 ```typescript
 // app/api/env/route.ts
 import { createEnvApiHandler } from '@envkit/nextjs/server';
-import { envSchema } from '../../env';
 
 const handler = createEnvApiHandler({
-  schema: envSchema,
   // Optional custom configuration
   config: {
     storageType: 'file', // 'file' or 'memory'
@@ -132,6 +180,35 @@ const handler = createEnvApiHandler({
 export { handler as GET, handler as POST };
 ```
 
+## Props Reference
+
+### EnvKitProvider Props
+
+| Prop | Type | Description | Default |
+|------|------|-------------|---------|
+| `children` | `ReactNode` | React children | Required |
+| `requiredVars` | `string[]` | List of required environment variables | Required |
+| `fallbackPath` | `string` | Path to redirect to when environment variables are missing | `/env-setup` |
+| `isProduction` | `boolean` | Whether the application is running in production mode | `process.env.NODE_ENV === 'production'` |
+| `logoUrl` | `string` | URL to a logo to display in the fallback UI | None |
+| `title` | `string` | Title to display at the top of the fallback UI | None |
+| `description` | `string` | Description to display below the title | None |
+| `customFallbackUI` | `React.ComponentType<FallbackUIProps>` | Custom component to render when environment variables are missing | `DefaultFallbackUI` |
+| `onMissingVars` | `(missingVars: string[]) => void` | Callback when missing vars are detected | None |
+| `maskAllEnvs` | `boolean` | When true, all environment variables will be masked by default | `false` |
+
+### FallbackUIProps
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `missingVars` | `MissingVar[]` | Array of missing environment variable objects |
+| `isLoading` | `boolean` | Whether the form is currently submitting |
+| `onSubmit` | `() => void` | Function to call when the form is submitted |
+| `logoUrl` | `string` | Optional logo URL |
+| `title` | `string` | Optional title text |
+| `description` | `string` | Optional description text |
+| `maskAllEnvs` | `boolean` | Whether to mask all environment variables by default |
+
 ## License
 
-MIT © Onboardbase
+MIT Onboardbase

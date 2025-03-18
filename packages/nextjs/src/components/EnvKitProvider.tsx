@@ -15,10 +15,30 @@ export interface EnvVarInfo {
   placeholder?: string;
 }
 
+export type MissingVar = EnvVarInfo;
+export type OnFallbackSubmit = () => void;
+
 export interface FallbackUIProps {
-  missingVars: EnvVarInfo[];
+  missingVars: MissingVar[];
   isLoading: boolean;
-  onComplete: () => void;
+  onSubmit: OnFallbackSubmit;
+  /**
+   * Optional logo URL to display instead of the default Onboardbase logo
+   */
+  logoUrl?: string;
+  /**
+   * Optional title to display at the top of the form
+   */
+  title?: string;
+  /**
+   * Optional description text to display below the title
+   */
+  description?: string;
+  /**
+   * When true, all environment variables will be masked by default
+   * Users can toggle visibility for individual variables
+   */
+  maskAllEnvs?: boolean;
 }
 
 interface EnvKitProviderProps {
@@ -45,6 +65,19 @@ interface EnvKitProviderProps {
   isProduction?: boolean;
   
   /**
+   * Optional URL to a logo to display in the fallback UI
+   */
+  logoUrl?: string;
+  /**
+   * Optional title to display at the top of the fallback UI
+   */
+  title?: string;
+  /**
+   * Optional description to display below the title in the fallback UI
+   */
+  description?: string;
+  
+  /**
    * Custom component to render when environment variables are missing
    * @default DefaultFallbackUI
    */
@@ -54,6 +87,13 @@ interface EnvKitProviderProps {
    * Callback when missing vars are detected
    */
   onMissingVars?: (missingVars: string[]) => void;
+
+  /**
+   * When true, all environment variables will be masked by default
+   * Users can toggle visibility for individual variables
+   * @default false
+   */
+  maskAllEnvs?: boolean;
 }
 
 /**
@@ -66,7 +106,11 @@ export function EnvKitProvider({
   fallbackPath = '/env-setup',
   isProduction = process.env.NODE_ENV === 'production',
   customFallbackUI: CustomFallbackUI,
+  logoUrl,
+  title,
+  description,
   onMissingVars,
+  maskAllEnvs = false,
 }: EnvKitProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -130,11 +174,30 @@ export function EnvKitProvider({
   
   // If we're loading or on the fallback path with missing vars, show the fallback UI
   if (!isReady && (isLoading || (pathname === fallbackPath && missingVars.length > 0))) {
+    if (CustomFallbackUI) {
+      return (
+        <CustomFallbackUI
+          missingVars={missingVars}
+          isLoading={isLoading}
+          onSubmit={handleComplete}
+          logoUrl={logoUrl}
+          title={title}
+          description={description}
+          maskAllEnvs={maskAllEnvs}
+        />
+      );
+    }
+
+    // Otherwise use the default UI
     return (
-      <FallbackUI
+      <DefaultFallbackUI
         missingVars={missingVars}
+        onSubmit={handleComplete}
+        logoUrl={logoUrl}
+        title={title}
+        description={description}
         isLoading={isLoading}
-        onComplete={handleComplete}
+        maskAllEnvs={maskAllEnvs}
       />
     );
   }
