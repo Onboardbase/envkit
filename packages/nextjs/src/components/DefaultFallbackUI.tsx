@@ -499,7 +499,7 @@ export function DefaultFallbackUI({
             </div>
           </div>
           {missingVars.length === 0 ? (
-            <div className="bg-green-500/10 border border-green-500/15 text-green-500 px-4 py-3 rounded mb-4">
+            <div className="bg-green-500/5 border border-green-500/10 text-green-300 px-4 py-3 rounded mb-4">
               <p>All required environment variables are set! You can now proceed.</p>
               <button 
                 onClick={onSubmit} 
@@ -516,7 +516,7 @@ export function DefaultFallbackUI({
                 </p> */}
                 
               {error && (
-                <div className="bg-red-500/10 border text-xs border-red-500/15 text-red-500 px-4 py-3 rounded mb-4">
+                <div className="bg-red-500/5 border text-xs border-red-500/10 text-red-300 px-4 py-3 rounded mb-4">
                   <span className="block sm:inline">{error}</span>
                 </div>
               )}
@@ -525,14 +525,14 @@ export function DefaultFallbackUI({
                   <div className={`p-4 relative ${envVars.length > 5 ? 'max-h-[400px] overflow-y-auto' : ''}`}>
                     {/* Success message */}
                     {success && (
-                      <div className="w-full mb-4 p-2 bg-green-500/20 border border-green-500/30 rounded-md text-center">
+                      <div className="w-full mb-4 p-2 bg-green-500/5 border border-green-500/10 rounded-md text-center">
                         <p className="text-green-300 text-sm">{success}</p>
                       </div>
                     )}
 
                     {/* Paste Status */}
                     {pasteStatus && (
-                      <div className="w-full mb-4 p-2 bg-blue-500/10 border border-blue-500/20 rounded-md text-center">
+                      <div className="w-full mb-4 p-2 bg-blue-500/5 border border-blue-500/10 rounded-md text-center">
                         <p className="text-blue-300 text-sm">{pasteStatus}</p>
                       </div>
                     )}
@@ -572,33 +572,35 @@ export function DefaultFallbackUI({
                               )}
                             </div>
                             <div className="flex items-center w-full">
-                              <input
-                                type={envVar.masked ? "password" : "text"}
-                                id={`env-${envVar.key || `value-${index}`}`}
-                                value={envVar.value}
-                                onChange={(e) => handleInputChange(index, e.target.value)}
-                                onPaste={(e) => handleInputPaste(e, index)}
-                                className={`w-full px-3 py-1.5 font-mono border sm:leading-6 text-xs text-white bg-gray-500/5 placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-0 focus:border-gray-500/15 ${isRequired ? 'border-gray-500/15' : 'border-gray-500/15'}`}
-                                placeholder={envVar.placeholder || `Enter value`}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => toggleMasking(index)}
-                                className="ml-2 p-1 rounded-md text-[#888F96] hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
-                                aria-label={envVar.masked ? "Show value" : "Hide value"}
-                              >
-                                {envVar.masked ? (
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                                    <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
-                                    <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                                  </svg>
-                                ) : (
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                                    <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.185A10.004 10.004 0 009.999 3a9.956 9.956 0 00-4.744 1.194L3.28 2.22zM7.752 6.69l1.092 1.092a2.5 2.5 0 013.374 3.373l1.091 1.092a4 4 0 00-5.557-5.557z" clipRule="evenodd" />
-                                    <path d="M10.748 13.93l2.523 2.523a9.987 9.987 0 01-3.27.547c-4.258 0-7.894-2.66-9.337-6.41a1.651 1.651 0 010-1.186A10.007 10.007 0 012.839 6.02L6.07 9.252a4 4 0 004.678 4.678z" />
-                                  </svg>
-                                )}
-                              </button>
+                              <div className="flex items-center w-full bg-gray-500/5 border-gray-500/15 border rounded-md">
+                                <input
+                                  type={envVar.masked ? "password" : "text"}
+                                  id={`env-${envVar.key || `value-${index}`}`}
+                                  value={envVar.value}
+                                  onChange={(e) => handleInputChange(index, e.target.value)}
+                                  onPaste={(e) => handleInputPaste(e, index)}
+                                  className={`w-full px-3 py-1.5 font-mono border sm:leading-6 text-xs text-white bg-transparent placeholder:text-gray-500 border-none focus:outline-none focus:ring-0 focus:border-none ${isRequired ? 'border-gray-500/15' : 'border-gray-500/15'}`}
+                                  placeholder={envVar.placeholder || `Enter value`}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => toggleMasking(index)}
+                                  className="p-2.5 bg-transparent text-[#888F96] hover:text-white transition-colors rounded-tr-md rounded-br-md"
+                                  aria-label={envVar.masked ? "Show value" : "Hide value"}
+                                >
+                                  {envVar.masked ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                      <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                                      <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                    </svg>
+                                  ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                      <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.185A10.004 10.004 0 009.999 3a9.956 9.956 0 00-4.744 1.194L3.28 2.22zM7.752 6.69l1.092 1.092a2.5 2.5 0 013.374 3.373l1.091 1.092a4 4 0 00-5.557-5.557z" clipRule="evenodd" />
+                                      <path d="M10.748 13.93l2.523 2.523a9.987 9.987 0 01-3.27.547c-4.258 0-7.894-2.66-9.337-6.41a1.651 1.651 0 010-1.186A10.007 10.007 0 012.839 6.02L6.07 9.252a4 4 0 004.678 4.678z" />
+                                    </svg>
+                                  )}
+                                </button>
+                              </div>
                               {!isRequired && (
                                 <button
                                   type="button"
