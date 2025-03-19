@@ -34,6 +34,7 @@ Wrap your application with `EnvKitProvider` in your Next.js App Router layout or
 ```tsx
 // app/layout.tsx
 import { EnvKitProvider } from '@envkit/nextjs';
+import '@envkit/nextjs/styles.css';
 
 export default function RootLayout({ children }) {
   // List of environment variables that are required for your app
