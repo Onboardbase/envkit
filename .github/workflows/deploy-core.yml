@@ -76,6 +76,22 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
+          
+          # Create a new branch for the changes
+          BRANCH_NAME="bump-core-version-${{ steps.new-version.outputs.version }}"
+          git checkout -b $BRANCH_NAME
+          
+          # Add and commit changes
           git add packages/core/package.json
           git commit -m "chore: bump core version to ${{ steps.new-version.outputs.version }} [skip ci]" || echo "No changes to commit"
-          git push
+          
+          # Push the branch
+          git push origin $BRANCH_NAME
+          
+          # Create a pull request using GitHub CLI
+          gh pr create --title "Bump core version to ${{ steps.new-version.outputs.version }}" \
+            --body "Automated PR to update the core package version to ${{ steps.new-version.outputs.version }}" \
+            --base main \
+            --head $BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

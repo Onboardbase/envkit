@@ -110,6 +110,23 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
+          
+          # Create a new branch for the changes
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          BRANCH_NAME="bump-versions-$TIMESTAMP"
+          git checkout -b $BRANCH_NAME
+          
+          # Add and commit changes
           git add packages/core/package.json packages/nextjs/package.json
           git commit -m "chore: bump versions [skip ci]" || echo "No changes to commit"
-          git push
+          
+          # Push the branch
+          git push origin $BRANCH_NAME
+          
+          # Create a pull request using GitHub CLI
+          gh pr create --title "Bump package versions" \
+            --body "Automated PR to update package versions: \n- Core: ${{ steps.new-versions.outputs.core }}\n- NextJS: ${{ steps.new-versions.outputs.nextjs }}" \
+            --base main \
+            --head $BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
