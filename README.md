@@ -42,7 +42,7 @@ pnpm add @envkit/nextjs
 ## Quick Start
 
 ### Next.js Example
-Checkout the [starterkit](https://github.com/Onboardbase/envkit-nextjs) here
+Checkout the [starterkit](https://github.com/Onboardbase/envkit-nextjs-template) here
 1. First, set up your environment variables in your Next.js app's root layout:
 
 ```tsx
