@@ -16,6 +16,7 @@ pnpm add @envkit/nextjs
 
 @envkit/nextjs provides a seamless integration with Next.js applications for managing environment variables with type safety, validation, and an elegant fallback UI for missing variables.
 
+Take a look at the [starter template](https://github.com/Onboardbase/envkit-nextjs-template) here
 ## Key Features
 
 - **Type-safe environment variables**: Define your environment schema with validation
