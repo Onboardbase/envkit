@@ -40,7 +40,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Check latest @envkit/core version from npm
         if: ${{ github.event.inputs.update_core_dependency == 'true' }}
