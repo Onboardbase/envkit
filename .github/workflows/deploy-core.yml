@@ -35,7 +35,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Build core package
         run: yarn workspace @envkit/core build
