@@ -9,6 +9,8 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
     permissions:
       contents: write
       issues: write
@@ -34,15 +36,9 @@ jobs:
         run: yarn build:packages
           
       - name: Release Core Package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
         working-directory: packages/core
         run: npx semantic-release
 
       - name: Release Next.js Package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
         working-directory: packages/nextjs
         run: npx semantic-release
