@@ -1,10 +1,10 @@
-# EnvKit
+# EnvKit by Onboardbase
 
 > A powerful, framework-agnostic environment variable management toolkit for modern JavaScript applications.
 
 [![npm version](https://img.shields.io/npm/v/@envkit/core.svg)](https://www.npmjs.com/package/@envkit/core)
 [![npm version](https://img.shields.io/npm/v/@envkit/nextjs.svg)](https://www.npmjs.com/package/@envkit/nextjs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/FSL-1.1-MIT)
 
 EnvKit provides a seamless way to manage environment variables in your applications with built-in validation, UI fallbacks for missing variables, and cross-framework compatibility.
 
@@ -65,6 +65,11 @@ export default function RootLayout({ children }) {
           requiredVars={requiredVars}
           fallbackPath="/onboarding" 
           customFallbackUI={DefaultFallbackUI}
+          maskAllEnvs={true}
+          disableAddNew={true}
+          logoUrl="https://yourcompany.com/logo.png" // Optional custom logo
+          title="Environment Setup Required" // Optional custom title
+          description="Please provide the following variables to continue" // Optional custom description
         >
           {children}
         </EnvKitProvider>
@@ -172,12 +177,57 @@ export default function RootLayout({ children }) {
 
 #### Custom Fallback UI
 
+EnvKit provides several customization options for the fallback UI:
+
+##### Using Appearance Options
+
+```tsx
+// Customize the appearance without creating a custom component
+<EnvKitProvider 
+  requiredVars={requiredVars}
+  fallbackPath="/onboarding"
+  logoUrl="https://yourcompany.com/logo.png" // Custom logo URL
+  title="Environment Setup" // Custom title
+  description="Please enter the required environment variables" // Custom description
+  maskAllEnvs={true} // Mask all environment variables by default
+  disableAddNew={true} // Only allow configuration of required environment variables
+>
+  {children}
+</EnvKitProvider>
+```
+
+##### Restricting to Required Variables Only
+
+The `disableAddNew` property ensures that users can only configure the environment variables that you've specified as required, preventing them from adding any new variables:
+
+```tsx
+<EnvKitProvider
+  requiredVars={requiredVars}
+  disableAddNew={true} // Only show and allow configuration of required variables
+>
+  {children}
+</EnvKitProvider>
+```
+
+This is useful when you want to strictly control which environment variables are set in your application.
+
+##### Using a Fully Custom Component
+
 Create a custom fallback UI component:
 
 ```tsx
 import { FallbackUIProps } from '@envkit/nextjs';
 
-function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProps) {
+function CustomFallbackUI({ 
+  missingVars, 
+  isLoading, 
+  onSubmit, 
+  logoUrl, 
+  title, 
+  description,
+  maskAllEnvs,
+  disableAddNew,
+}: FallbackUIProps) {
   // Implementation...
   return <div>Your custom UI here</div>;
 }
@@ -187,6 +237,11 @@ function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProp
   requiredVars={requiredVars}
   fallbackPath="/onboarding"
   customFallbackUI={CustomFallbackUI}
+  logoUrl="https://yourcompany.com/logo.png" // These props will be passed to your custom component
+  title="Environment Setup"
+  maskAllEnvs={true}
+  disableAddNew={true}
+  description="Please enter the required environment variables"
 >
   {children}
 </EnvKitProvider>
@@ -196,11 +251,11 @@ function CustomFallbackUI({ missingVars, isLoading, onComplete }: FallbackUIProp
 
 For more detailed documentation, visit:
 
-- [Core Package Documentation](/packages/envkit-core/README.md)
-- [Next.js Integration Documentation](/packages/nextjs/README.md)
+<!-- - [Core Package Documentation](/packages/envkit-core/README.md)
+- [Next.js Integration Documentation](/packages/nextjs/README.md) -->
 - [Contributing Guide](CONTRIBUTING.md)
-- [Publishing Guide](PUBLISHING.md)
+<!-- - [Publishing Guide](PUBLISHING.md) -->
 
 ## License
 
-MIT 
+This project is licensed under the FSL-1.1-MIT License. See the [LICENSE](/LICENSE) file for details.

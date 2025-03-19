@@ -2,9 +2,44 @@
   "name": "@envkit/nextjs",
   "version": "0.1.0",
   "description": "Environment variable management for Next.js applications",
+  "author": "Onboardbase",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Onboardbase/envkit.git",
+    "directory": "packages/nextjs"
+    
+  },
+  "homepage": "https://github.com/Onboardbase/envkit#readme",
+  "bugs": {
+    "url": "https://github.com/Onboardbase/envkit/issues"
+  },
+  "keywords": [
+    "nextjs",
+    "next.js",
+    "react",
+    "environment",
+    "variables",
+    "env",
+    "secrets",
+    "config",
+    "management",
+    "dotenv",
+    "onboardbase"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -27,13 +62,14 @@
     "build:css": "tailwindcss -i ./src/styles/tailwind.css -o ./dist/styles.css",
     "watch:css": "tailwindcss -i ./src/styles/tailwind.css -o ./dist/styles.css --watch",
     "clean": "rimraf dist",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "eslint src --ext .ts,.tsx",
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
     "dotenv": "^16.3.1",
     "server-only": "^0.0.1",
     "valibot": "^0.28.0",
-    "@envkit/core": "*"
+    "@envkit/core": "^0.1.0"
   },
   "peerDependencies": {
     "next": ">=13.0.0",

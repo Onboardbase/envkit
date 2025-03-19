@@ -1,0 +1,81 @@
+name: Deploy Core Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., patch, minor, major, or specific version like 1.2.3)'
+        required: true
+        default: 'patch'
+        type: string
+      tag:
+        description: 'npm tag (e.g., latest, beta, next)'
+        required: true
+        default: 'latest'
+        type: string
+
+jobs:
+  deploy-core:
+    name: Build and Deploy Core Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build core package
+        run: yarn workspace @envkit/core build
+
+      - name: Get current version of core package
+        id: current-version
+        run: |
+          echo "version=$(node -p "require('./packages/core/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Version update
+        working-directory: packages/core
+        if: ${{ github.event.inputs.version != '' }}
+        run: |
+          if [[ "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          else
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          fi
+
+      - name: Publish @envkit/core
+        working-directory: packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_PRV }}
+        run: npm publish --tag ${{ github.event.inputs.tag }} --access public
+
+      - name: Get new version
+        id: new-version
+        run: |
+          CORE_VERSION=$(node -p "require('./packages/core/package.json').version")
+          echo "version=$CORE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git tag @envkit/core-v${{ steps.new-version.outputs.version }}
+          git push origin @envkit/core-v${{ steps.new-version.outputs.version }}
+
+      - name: Commit version changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add packages/core/package.json
+          git commit -m "chore: bump core version to ${{ steps.new-version.outputs.version }} [skip ci]" || echo "No changes to commit"
+          git push
