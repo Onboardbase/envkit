@@ -53,4 +53,4 @@ console.log(env.DEBUG); // boolean
 
 ## License
 
-MIT © Onboardbase
+This project is licensed under the FSL-1.1-MIT License. See the [LICENSE](../../LICENSE) file for details.
