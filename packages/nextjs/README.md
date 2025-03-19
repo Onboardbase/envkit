@@ -67,7 +67,10 @@ You can customize the environment setup UI by providing additional props:
   requiredVars={requiredVars}
   logoUrl="https://yourcompany.com/logo.png" 
   title="Environment Setup" 
+  fallbackPath="/env-setup"
+  isProduction={false}
   description="Please provide the required environment variables"
+  disableAddNew={true}
   maskAllEnvs={true} // Mask all environment variable values by default
 >
   {children}
@@ -196,6 +199,7 @@ export { handler as GET, handler as POST };
 | `customFallbackUI` | `React.ComponentType<FallbackUIProps>` | Custom component to render when environment variables are missing | `DefaultFallbackUI` |
 | `onMissingVars` | `(missingVars: string[]) => void` | Callback when missing vars are detected | None |
 | `maskAllEnvs` | `boolean` | When true, all environment variables will be masked by default | `false` |
+| `disableAddNew` | `boolean` | When true, users cannot add new environment variables and only the required variables will be shown | `false` |
 
 ### FallbackUIProps
 

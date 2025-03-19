@@ -189,10 +189,27 @@ EnvKit provides several customization options for the fallback UI:
   logoUrl="https://yourcompany.com/logo.png" // Custom logo URL
   title="Environment Setup" // Custom title
   description="Please enter the required environment variables" // Custom description
+  maskAllEnvs={true} // Mask all environment variables by default
+  disableAddNew={true} // Only allow configuration of required environment variables
 >
   {children}
 </EnvKitProvider>
 ```
+
+##### Restricting to Required Variables Only
+
+The `disableAddNew` property ensures that users can only configure the environment variables that you've specified as required, preventing them from adding any new variables:
+
+```tsx
+<EnvKitProvider
+  requiredVars={requiredVars}
+  disableAddNew={true} // Only show and allow configuration of required variables
+>
+  {children}
+</EnvKitProvider>
+```
+
+This is useful when you want to strictly control which environment variables are set in your application.
 
 ##### Using a Fully Custom Component
 
