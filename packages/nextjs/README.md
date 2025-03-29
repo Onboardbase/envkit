@@ -192,7 +192,7 @@ export { handler as GET, handler as POST };
 | Prop | Type | Description | Default |
 |------|------|-------------|---------|
 | `children` | `ReactNode` | React children | Required |
-| `requiredVars` | `string[]` | List of required environment variables | Required |
+| `requiredVars` | `string[]` | List of required environment variables (only needed on the backend side) | Optional |
 | `fallbackPath` | `string` | Path to redirect to when environment variables are missing | `/env-setup` |
 | `isProduction` | `boolean` | Whether the application is running in production mode | `process.env.NODE_ENV === 'production'` |
 | `logoUrl` | `string` | URL to a logo to display in the fallback UI | None |
