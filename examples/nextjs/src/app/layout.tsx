@@ -9,13 +9,6 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  // Define your required environment variables here
-  const requiredVars = [
-    'DATABASE_URL',
-    'API_KEY',
-    'SECRET_KEY',
-    // Add more as needed
-  ];
 
   return (
     <html lang="en">
