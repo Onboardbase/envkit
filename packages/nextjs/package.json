@@ -1,6 +1,6 @@
 {
   "name": "@envkit/nextjs",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Environment variable management for Next.js applications",
   "author": "Onboardbase",
   "license": "FSL-1.1-MIT",
@@ -10,7 +10,6 @@
     "type": "git",
     "url": "https://github.com/Onboardbase/envkit.git",
     "directory": "packages/nextjs"
-    
   },
   "homepage": "https://github.com/Onboardbase/envkit#readme",
   "bugs": {
@@ -66,10 +65,10 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
+    "@envkit/core": "^0.3.0",
     "dotenv": "^16.3.1",
     "server-only": "^0.0.1",
-    "valibot": "^0.28.0",
-    "@envkit/core": "^0.1.0"
+    "valibot": "^0.28.0"
   },
   "peerDependencies": {
     "next": ">=13.0.0",
