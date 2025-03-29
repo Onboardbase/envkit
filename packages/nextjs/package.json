@@ -1,6 +1,6 @@
 {
   "name": "@envkit/nextjs",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Environment variable management for Next.js applications",
   "author": "Onboardbase",
   "license": "FSL-1.1-MIT",
