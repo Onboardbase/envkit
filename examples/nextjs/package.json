@@ -10,9 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
     "@envkit/nextjs": "*",
-    "next": "^15.2.2",
+    "dotenv": "^16.3.1",
+    "next": "15.2.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
