@@ -1,0 +1,25 @@
+@import "tailwindcss";
+html,
+body {
+  @apply w-full;
+  @apply min-h-screen;
+  @apply overscroll-y-none;
+  @apply overscroll-none;
+  scroll-behavior: smooth;
+  /* font-family: 'Geist Mono'; */
+  font-family: Inter var, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI,
+    Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-weight: normal;
+  letter-spacing: 0.6px;
+}
+
+::selection {
+	@apply text-black;
+  @apply bg-white;
+}
+
+.list-border {
+	@apply border-gray-500/10;
+  /* border: 1px solid #6a7282; */
+}

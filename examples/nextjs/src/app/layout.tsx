@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { EnvKitProvider, DefaultFallbackUI } from '@envkit/nextjs';
 // Import the EnvKit styles
 import '@envkit/nextjs/styles.css';
+import './global.css';
 
 interface RootLayoutProps {
   children: ReactNode;
