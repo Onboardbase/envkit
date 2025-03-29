@@ -87,9 +87,17 @@ export async function loadEnvVars(options: LoadEnvOptions = {}): Promise<Record<
  * Write environment variables to a .env.local file
  * This is a server-side only function
  */
+export interface WriteEnvOptions extends Pick<LoadEnvOptions, 'envDir'> {
+  /**
+   * Target .env file to write to
+   * @default '.env.local'
+   */
+  targetEnvFile?: string;
+}
+
 export async function writeEnvVars(
   variables: Record<string, string>,
-  options: Pick<LoadEnvOptions, 'envDir'> = {}
+  options: WriteEnvOptions = {}
 ): Promise<WriteEnvResult> {
   try {
     // Import modules only when the function is called
@@ -97,8 +105,8 @@ export async function writeEnvVars(
     const path = await import('path');
     const dotenv = await import('dotenv');
     
-    const { envDir = process.cwd() } = options;
-    const targetFile = path.resolve(envDir, '.env.local');
+    const { envDir = process.cwd(), targetEnvFile = '.env.local' } = options;
+    const targetFile = path.resolve(envDir, targetEnvFile);
     
     // Create .env.local content
     let envContent = '';

@@ -42,7 +42,18 @@ export class EnvKitApi {
    * Check the status of environment variables
    * @returns Promise with the status of environment variables
    */
+  // Cache for checkStatus results to prevent multiple API calls
+  private statusCache: EnvVarStatus | null = null;
+  private lastCheckTime = 0;
+  private readonly CACHE_TTL = 5000; // 5 seconds cache TTL
+  
   async checkStatus(): Promise<EnvVarStatus> {
+    // Return cached result if it's still valid
+    const now = Date.now();
+    if (this.statusCache && (now - this.lastCheckTime < this.CACHE_TTL)) {
+      return this.statusCache;
+    }
+    
     try {
       const response = await fetch(`${this.baseUrl}`, {
         method: 'GET',
@@ -52,21 +63,30 @@ export class EnvKitApi {
       
       if (!response.ok) {
         const error = await response.text();
-        return {
+        const result = {
           success: false,
           missingVars: [],
           error: `API request failed: ${error}`
         };
+        this.statusCache = result;
+        this.lastCheckTime = now;
+        return result;
       }
       
-      return await response.json();
+      const result = await response.json();
+      this.statusCache = result;
+      this.lastCheckTime = now;
+      return result;
     } catch (error) {
       console.error('Error checking environment variables:', error);
-      return {
+      const result = {
         success: false,
         missingVars: [],
         error: error instanceof Error ? error.message : String(error)
       };
+      this.statusCache = result;
+      this.lastCheckTime = now;
+      return result;
     }
   }
   

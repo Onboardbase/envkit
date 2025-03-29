@@ -8,12 +8,62 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loadEnvVars, writeEnvVars } from '../server';
 
 // Define the interfaces we need locally to avoid import issues
-export interface EnvApiHandlerOptions {
-  allowInProduction?: boolean;
-  envDir?: string;
-  envFiles?: string[];
-  onUpdate?: (updatedVars: Record<string, string>) => Promise<void>;
+
+/**
+ * Configuration for a specific environment
+ */
+export interface EnvConfig {
+  /**
+   * Required environment variables for this environment
+   */
   requiredVars?: string[];
+  
+  /**
+   * Target .env file for this environment
+   * @default '.env.local'
+   */
+  targetEnvFile?: string;
+}
+
+/**
+ * Options for the EnvKit API handler
+ */
+export interface EnvApiHandlerOptions {
+  /**
+   * Allow access in production environment
+   * @default false
+   */
+  allowInProduction?: boolean;
+  
+  /**
+   * The directory to look for .env files
+   * @default process.cwd()
+   */
+  envDir?: string;
+  
+  /**
+   * The .env file names to look for when loading variables
+   * @default ['.env.local', '.env.development.local', '.env.development', '.env']
+   */
+  envFiles?: string[];
+  
+  /**
+   * Callback function to run after environment variables are updated
+   */
+  onUpdate?: (updatedVars: Record<string, string>) => Promise<void>;
+  
+  /**
+   * Required environment variables (legacy approach)
+   * @deprecated Use environments object instead
+   */
+  requiredVars?: string[];
+  
+  /**
+   * Environment-specific configurations
+   * Keys are environment names (e.g., 'development', 'production')
+   * Values are environment-specific configurations
+   */
+  environments?: Record<string, EnvConfig>;
 }
 
 /**
@@ -62,6 +112,7 @@ export const createEnvApiHandler: CreateEnvApiHandlerType = (options = {}) => {
         }
 
         let requiredVars: string[] = [];
+        let currentEnv = process.env.NODE_ENV || 'development';
         
         // Check cookies for required vars
         const cookieHeader = request.headers.get('cookie');
@@ -77,7 +128,12 @@ export const createEnvApiHandler: CreateEnvApiHandlerType = (options = {}) => {
           }
         }
         
-        // If requiredVars is still empty, try reading from options
+        // If requiredVars is still empty, check environment-specific config
+        if (requiredVars.length === 0 && options.environments && options.environments[currentEnv]) {
+          requiredVars = options.environments[currentEnv].requiredVars || [];
+        }
+        
+        // If still empty, fall back to legacy requiredVars
         if (requiredVars.length === 0 && options.requiredVars) {
           requiredVars = options.requiredVars;
         }
@@ -91,7 +147,8 @@ export const createEnvApiHandler: CreateEnvApiHandlerType = (options = {}) => {
         // Return status
         return createResponse({
           success: missingVars.length === 0,
-          missingVars
+          missingVars,
+          environment: currentEnv
         }, 200);
       };
     },
@@ -105,8 +162,19 @@ export const createEnvApiHandler: CreateEnvApiHandlerType = (options = {}) => {
 
         // Parse request body
         let body;
+        let targetEnv;
         try {
-          body = await request.json();
+          const requestData = await request.json();
+          
+          // Check if the request includes a target environment
+          if (requestData._targetEnv) {
+            targetEnv = requestData._targetEnv;
+            // Remove the _targetEnv property from the body
+            const { _targetEnv, ...envVars } = requestData;
+            body = envVars;
+          } else {
+            body = requestData;
+          }
         } catch (error) {
           return createResponse({ 
             error: 'Invalid request body. Expected JSON object.'
@@ -115,8 +183,20 @@ export const createEnvApiHandler: CreateEnvApiHandlerType = (options = {}) => {
 
         // Write env vars
         try {
+          const currentEnv = targetEnv || process.env.NODE_ENV || 'development';
+          let targetEnvFile = '.env.local';
+          
+          // Check if we have environment-specific configuration
+          if (options.environments && options.environments[currentEnv] && options.environments[currentEnv].targetEnvFile) {
+            targetEnvFile = options.environments[currentEnv].targetEnvFile;
+          }
+          
           // Get the raw result from writeEnvVars
-          const rawResult = await writeEnvVars(body, { ...options, ...handlerOptions });
+          const rawResult = await writeEnvVars(body, { 
+            ...options, 
+            ...handlerOptions,
+            targetEnvFile
+          });
           
           // Convert to the expected format
           const result: WriteEnvResult = {
@@ -135,6 +215,7 @@ export const createEnvApiHandler: CreateEnvApiHandlerType = (options = {}) => {
           return createResponse({
             success: result.success,
             path: result.path,
+            environment: currentEnv,
             error: result.error
           }, 200);
         } catch (error) {

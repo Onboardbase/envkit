@@ -5,9 +5,22 @@ import { NextRequest } from 'next/server';
 // Using dynamic import for server-only code
 // This ensures proper separation of client and server code
 const handlers = createEnvApiHandler({
-  // Specify your required variables (if not using provider)
-  requiredVars: ['DATABASE_URL', 'API_KEY'],
-  
+  environments: {
+    production: {
+      // Specify required variables for production
+      requiredVars: ['DATABASE_URL', 'API_KEY'],
+    },
+    local: {
+      // Specify required variables for local development
+      targetEnvFile: '.env.local',
+      requiredVars: ['DATABASE_URL', 'API_KEY', 'zyx'],
+    },
+    development: {
+      // Specify required variables for development
+      targetEnvFile: '.env.development',
+      requiredVars: ['DATABASE_URL', 'API_KEY'],
+    },
+  },
   // Optional: Allow access in production (defaults to false)
   allowInProduction: false,
   
