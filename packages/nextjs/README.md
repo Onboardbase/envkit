@@ -16,7 +16,24 @@ pnpm add @envkit/nextjs
 
 @envkit/nextjs provides a seamless integration with Next.js applications for managing environment variables with type safety, validation, and an elegant fallback UI for missing variables.
 
-Take a look at the [starter template](https://github.com/Onboardbase/envkit-nextjs-template) here
+### Common Use Cases
+
+1. **Development Environment Setup**
+   - Automatically prompt developers for required environment variables
+   - Support for different .env files per environment
+   - Easy onboarding for new team members
+
+2. **Production Deployment**
+   - Validate environment variables before deployment
+   - Prevent application startup with missing critical variables
+   - Secure handling of sensitive information
+
+3. **Local Development**
+   - Interactive UI for managing environment variables
+   - Support for uploading .env files
+   - Bulk paste functionality for quick setup
+
+Get started quickly with our [starter template](https://github.com/Onboardbase/envkit-nextjs-template)
 ## Key Features
 
 - **Type-safe environment variables**: Define your environment schema with validation
@@ -38,18 +55,11 @@ import { EnvKitProvider } from '@envkit/nextjs';
 import '@envkit/nextjs/styles.css';
 
 export default function RootLayout({ children }) {
-  // List of environment variables that are required for your app
-  const requiredVars = [
-    'API_KEY',
-    'DATABASE_URL',
-    // Add all required environment variables here
-  ];
 
   return (
     <html lang="en">
       <body>
         <EnvKitProvider 
-          requiredVars={requiredVars}
           fallbackPath="/env-setup" // Optional, defaults to '/env-setup'
         >
           {children}
@@ -66,7 +76,6 @@ You can customize the environment setup UI by providing additional props:
 
 ```tsx
 <EnvKitProvider 
-  requiredVars={requiredVars}
   logoUrl="https://yourcompany.com/logo.png" 
   title="Environment Setup" 
   fallbackPath="/env-setup"
@@ -138,7 +147,6 @@ function MyCustomFallbackUI({
 
 // Then in your layout:
 <EnvKitProvider 
-  requiredVars={requiredVars}
   customFallbackUI={MyCustomFallbackUI}
   logoUrl="https://yourcompany.com/logo.png" 
   title="Environment Setup"
@@ -166,23 +174,46 @@ When pasted, EnvKit will automatically parse the key-value pairs and populate th
 You can create an API route to manage environment variables:
 
 ```typescript
-// app/api/env/route.ts
+// app/api/envkit/route.ts
+// Use the direct path to the compiled output for local development
 import { createEnvApiHandler } from '@envkit/nextjs/server';
+import { NextRequest } from 'next/server';
 
-const handler = createEnvApiHandler({
-  // Optional custom configuration
-  config: {
-    storageType: 'file', // 'file' or 'memory'
-    filePath: '.env.local'
+// Using dynamic import for server-only code
+// This ensures proper separation of client and server code
+const handlers = createEnvApiHandler({
+  environments: {
+    production: {
+      // Specify required variables for production
+      requiredVars: ['DATABASE_URL', 'API_KEY'],
+    },
+    local: {
+      // Specify required variables for local development
+      targetEnvFile: '.env.local',
+      requiredVars: ['DATABASE_URL', 'API_KEY', 'zyx'],
+    },
+    development: {
+      // Specify required variables for development
+      targetEnvFile: '.env.development',
+      requiredVars: ['DATABASE_URL', 'API_KEY'],
+    },
   },
-  // Optional access control
-  authorize: async (req) => {
-    // Implement your auth logic here
-    return true;
-  }
+  
+  // Optional: Allow access in production (defaults to false)
+  allowInProduction: false,
+  
+  // Optional: Customize the directory for .env files
+  envDir: process.cwd(),
 });
 
-export { handler as GET, handler as POST };
+// Export GET and POST handlers for Next.js App Router
+export async function GET(request: NextRequest) {
+  return handlers.statusHandler(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handlers.updateHandler(request);
+}
 ```
 
 ## Props Reference
