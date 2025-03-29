@@ -1,9 +1,9 @@
 {
   "name": "@envkit/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic core functionality for EnvKit",
   "author": "Onboardbase",
-  "license": "MIT",
+  "license": "FSL-1.1-MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {

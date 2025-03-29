@@ -54,8 +54,10 @@ interface EnvKitProviderProps {
   
   /**
    * Environment variables that are required for the application to run
+   * This is only needed on the backend side and is optional in the component props
+   * @deprecated This prop is only needed on the backend side
    */
-  requiredVars: string[];
+  requiredVars?: string[];
   
   /**
    * Path to redirect to when environment variables are missing
@@ -114,7 +116,7 @@ interface EnvKitProviderProps {
  */
 export function EnvKitProvider({
   children,
-  requiredVars,
+  requiredVars = [],
   fallbackPath = '/env-setup',
   isProduction = process.env.NODE_ENV === 'production',
   customFallbackUI: CustomFallbackUI,
@@ -134,10 +136,15 @@ export function EnvKitProvider({
   // Use the fallback UI if provided, otherwise use the default
   const FallbackUI = CustomFallbackUI || DefaultFallbackUI;
   
+  // Use a ref to track if we've already checked for missing variables
+  // This prevents multiple API calls in development mode due to React's StrictMode
+  const isFirstRender = React.useRef(true);
+  
   useEffect(() => {
+    
     const checkEnvironmentVariables = async () => {
       try {
-        // Check environment variables on client side
+        // Check environment variables on client side with cache control
         const result = await envKitApi.checkStatus();
         
         if (!result.success) {
@@ -173,8 +180,12 @@ export function EnvKitProvider({
       }
     };
     
-    checkEnvironmentVariables();
-  }, [requiredVars, fallbackPath, pathname, router, isProduction, onMissingVars]);
+    // Only run on first render or when pathname changes
+    if (isFirstRender.current || pathname === fallbackPath) {
+      isFirstRender.current = false;
+      checkEnvironmentVariables();
+    }
+  }, [pathname, fallbackPath, isProduction, router, onMissingVars]);
   
   // Handle completion of environment variable setup
   const handleComplete = () => {

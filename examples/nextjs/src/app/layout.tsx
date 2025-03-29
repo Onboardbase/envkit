@@ -9,13 +9,6 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  // Define your required environment variables here
-  const requiredVars = [
-    'DATABASE_URL',
-    'API_KEY',
-    'SECRET_KEY',
-    // Add more as needed
-  ];
 
   return (
     <html lang="en">
@@ -29,7 +22,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
           title="Welcome to Github"
           maskAllEnvs={true}
           description="Configure the required envs to run this application."
-          requiredVars={requiredVars}
           fallbackPath="/onboarding"
           customFallbackUI={DefaultFallbackUI}
           disableAddNew={true}

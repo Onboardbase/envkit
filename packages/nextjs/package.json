@@ -1,9 +1,9 @@
 {
   "name": "@envkit/nextjs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Environment variable management for Next.js applications",
   "author": "Onboardbase",
-  "license": "MIT",
+  "license": "FSL-1.1-MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {

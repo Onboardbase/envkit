@@ -25,20 +25,18 @@ pnpm add @envkit/core
 
 ## Usage
 
-The core package is typically used by framework-specific implementations rather than directly by end users. If you're integrating with a specific framework, consider using one of our framework-specific packages:
-
-- [@envkit/nextjs](https://www.npmjs.com/package/@envkit/nextjs) for Next.js applications
-
-If you need to use the core package directly:
+### Direct Usage
+While the core package is primarily used by framework-specific implementations, you can use it directly in any JavaScript/TypeScript project:
 
 ```typescript
 import { defineEnv, parseEnv } from '@envkit/core';
-import { string, number, boolean } from 'valibot';
+import { string, number, boolean, url } from 'valibot';
 
-// Define your environment schema
+// Define your environment schema with validation
 const envSchema = defineEnv({
-  DATABASE_URL: string(),
-  PORT: number(),
+  API_KEY: string([minLength(1), startsWith('sk_')]),
+  DATABASE_URL: string([url()]),
+  PORT: number([minValue(1000), maxValue(9999)]),
   DEBUG: boolean(),
 });
 
@@ -46,11 +44,48 @@ const envSchema = defineEnv({
 const env = parseEnv(envSchema, process.env);
 
 // Type-safe access to environment variables
-console.log(env.DATABASE_URL); // string
-console.log(env.PORT); // number
+console.log(env.DATABASE_URL); // string (valid URL)
+console.log(env.PORT); // number (between 1000-9999)
 console.log(env.DEBUG); // boolean
 ```
 
+### Common Use Cases
+
+1. **API Configuration**
+```typescript
+const apiConfig = defineEnv({
+  API_KEY: string([minLength(32)]),
+  API_BASE_URL: string([url()]),
+  API_VERSION: string([regex(/^v\d+$/)])
+});
+```
+
+2. **Database Configuration**
+```typescript
+const dbConfig = defineEnv({
+  DB_HOST: string(),
+  DB_PORT: number([minValue(1024)]),
+  DB_USER: string(),
+  DB_PASSWORD: string([minLength(8)]),
+  DB_SSL: boolean()
+});
+```
+
+3. **Feature Flags**
+```typescript
+const featureFlags = defineEnv({
+  ENABLE_BETA_FEATURES: boolean(),
+  MAX_USERS: number([minValue(1)]),
+  MAINTENANCE_MODE: boolean()
+});
+```
+
+### Framework Integrations
+
+For framework-specific features, consider using our dedicated packages:
+
+- [@envkit/nextjs](https://www.npmjs.com/package/@envkit/nextjs) for Next.js applications
+
 ## License
 
-MIT © Onboardbase
+This project is licensed under the FSL-1.1-MIT License. See the [LICENSE](../../LICENSE) file for details.

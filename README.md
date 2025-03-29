@@ -42,7 +42,7 @@ pnpm add @envkit/nextjs
 ## Quick Start
 
 ### Next.js Example
-
+Checkout the [starterkit](https://github.com/Onboardbase/envkit-nextjs-template) here
 1. First, set up your environment variables in your Next.js app's root layout:
 
 ```tsx
@@ -51,18 +51,11 @@ import { EnvKitProvider, DefaultFallbackUI } from '@envkit/nextjs';
 import '@envkit/nextjs/styles.css'; // Import the styles
 
 export default function RootLayout({ children }) {
-  // Define required environment variables
-  const requiredVars = [
-    'DATABASE_URL',
-    'API_KEY',
-    'SECRET_KEY',
-  ];
 
   return (
     <html lang="en">
       <body>
         <EnvKitProvider 
-          requiredVars={requiredVars}
           fallbackPath="/onboarding" 
           customFallbackUI={DefaultFallbackUI}
           maskAllEnvs={true}
@@ -99,8 +92,22 @@ import { NextRequest } from 'next/server';
 // Using dynamic import for server-only code
 // This ensures proper separation of client and server code
 const handlers = createEnvApiHandler({
-  // Specify your required variables (if not using provider)
-  requiredVars: ['DATABASE_URL', 'API_KEY'],
+  environments: {
+    production: {
+      // Specify required variables for production
+      requiredVars: ['DATABASE_URL', 'API_KEY'],
+    },
+    local: {
+      // Specify required variables for local development
+      targetEnvFile: '.env.local',
+      requiredVars: ['DATABASE_URL', 'API_KEY', 'zyx'],
+    },
+    development: {
+      // Specify required variables for development
+      targetEnvFile: '.env.development',
+      requiredVars: ['DATABASE_URL', 'API_KEY'],
+    },
+  },
   
   // Optional: Allow access in production (defaults to false)
   allowInProduction: false,
@@ -119,61 +126,7 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-## Using Environment Variables
-
-### Accessing Environment Variables
-
-```tsx
-import { useEnv } from '@envkit/nextjs';
-
-export default function MyComponent() {
-  const { env, isLoading, error } = useEnv();
-  
-  if (isLoading) return <div>Loading environment variables...</div>;
-  if (error) return <div>Error: {error}</div>;
-  
-  return (
-    <div>
-      <h1>Environment Variables</h1>
-      <p>API Key: {env.API_KEY}</p>
-    </div>
-  );
-}
-```
-
 ### Advanced Configuration
-
-#### Custom Validation
-
-You can add custom validation rules to your environment variables:
-
-```tsx
-import { EnvKitProvider } from '@envkit/nextjs';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <EnvKitProvider 
-          requiredVars={[
-            { 
-              key: 'API_KEY', 
-              validation: (value) => value.startsWith('sk_') ? null : 'API key must start with sk_',
-              label: 'API Key',
-              description: 'Your secret API key',
-              secret: true
-            },
-            // More vars...
-          ]}
-          fallbackPath="/onboarding"
-        >
-          {children}
-        </EnvKitProvider>
-      </body>
-    </html>
-  );
-}
-```
 
 #### Custom Fallback UI
 
@@ -233,8 +186,7 @@ function CustomFallbackUI({
 }
 
 // Then in your layout:
-<EnvKitProvider 
-  requiredVars={requiredVars}
+<EnvKitProvider
   fallbackPath="/onboarding"
   customFallbackUI={CustomFallbackUI}
   logoUrl="https://yourcompany.com/logo.png" // These props will be passed to your custom component
