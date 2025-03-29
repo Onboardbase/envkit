@@ -137,7 +137,6 @@ EnvKit provides several customization options for the fallback UI:
 ```tsx
 // Customize the appearance without creating a custom component
 <EnvKitProvider 
-  requiredVars={requiredVars}
   fallbackPath="/onboarding"
   logoUrl="https://yourcompany.com/logo.png" // Custom logo URL
   title="Environment Setup" // Custom title
@@ -155,7 +154,6 @@ The `disableAddNew` property ensures that users can only configure the environme
 
 ```tsx
 <EnvKitProvider
-  requiredVars={requiredVars}
   disableAddNew={true} // Only show and allow configuration of required variables
 >
   {children}
