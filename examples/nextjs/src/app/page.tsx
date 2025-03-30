@@ -32,7 +32,7 @@ export default function HomePage() {
             </div>
             <span className="text-xl font-semibold text-white">EnvKit</span>
           </div>
-          <p className="text-[#888F96] text-xs">Onboard new devs faster.</p>
+          <p className="text-[#888F96] text-xs font-medium">Onboard new devs faster.</p>
         </div>
         <div className="w-8 h-8 border-t-4 border-blue-300 border-solid rounded-full animate-spin"></div>
         <p className="mt-4 text-sm text-white">Loading environment configuration...</p>
@@ -68,7 +68,7 @@ export default function HomePage() {
             <span className="text-white w-full">
               <h3>Public Environment Variables:</h3>
               {Object.keys(envVars).length > 0 ? (
-                <ul className='bg-gray-500/10 border border-[#6a7282] rounded-md p-4 w-full list-border mt-4'>
+                <ul className='bg-gray-500/10 border border-[#6a7282] rounded-md px-3 py-2 w-full list-border mt-4'>
                   {Object.entries(envVars).map(([key, value]) => (
                     <li key={key}>
                       <span className="text-blue-300 italic">{key}:</span> {value}

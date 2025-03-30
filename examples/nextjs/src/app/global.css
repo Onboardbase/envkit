@@ -1,4 +1,9 @@
-@import "tailwindcss";
+/* @import "tailwindcss"; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your custom styles below */
 html,
 body {
   @apply w-full;
